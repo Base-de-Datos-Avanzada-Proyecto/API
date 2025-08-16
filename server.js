@@ -14,15 +14,15 @@ const morgan = require('morgan');
 require('dotenv').config();
 
 // Import GraphQL schemas and resolvers
-const { typeDefs } = require('./graphql/typeDefs');
-const { resolvers } = require('./graphql/resolvers');
+const { typeDefs, resolvers } = require('./graphql');
 
 // Import REST routes
 const professionalsRoutes = require('./routes/professionals');
 const employersRoutes = require('./routes/employers');
+const applicationsRoutes = require('./routes/applications');
 
 // Import database configuration
-const connectDB = require('./config/database');
+const { connectDB } = require('./config/database');
 
 /**
  * Initialize Express application
@@ -44,6 +44,7 @@ app.use(express.urlencoded({ extended: true }));
  */
 app.use('/api/professionals', professionalsRoutes);
 app.use('/api/employers', employersRoutes);
+app.use('/api/applications', applicationsRoutes);
 
 /**
  * Health check endpoint
@@ -53,7 +54,41 @@ app.get('/health', (req, res) => {
     status: 'OK',
     message: 'Professional Registry System is running',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV
+    environment: process.env.NODE_ENV,
+    features: [
+      'Professional Registration',
+      'Employer Registration', 
+      'Job Offers Management',
+      'Job Applications System',
+      'GraphQL API',
+      'REST API'
+    ]
+  });
+});
+
+/**
+ * API Documentation endpoint
+ */
+app.get('/api', (req, res) => {
+  res.json({
+    message: 'Professional Registry System API',
+    version: '1.0.0',
+    endpoints: {
+      rest: {
+        professionals: '/api/professionals',
+        employers: '/api/employers',
+        applications: '/api/applications'
+      },
+      graphql: process.env.GRAPHQL_PATH || '/graphql',
+      health: '/health'
+    },
+    features: {
+      applications: {
+        'Monthly limit': '3 applications per professional per month',
+        'Duplicate prevention': 'Cannot apply twice to same job offer',
+        'Status workflow': 'Pending → Accepted/Rejected'
+      }
+    }
   });
 });
 
@@ -107,8 +142,12 @@ async function startServer() {
     app.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
       console.log(`📊 GraphQL Playground: http://localhost:${PORT}${apolloServer.graphqlPath}`);
-      console.log(`📋 Health Check: http://localhost:${PORT}/health`);
-      console.log(`🔗 REST API: http://localhost:${PORT}/api`);
+      console.log(`🏥 Health Check: http://localhost:${PORT}/health`);
+      console.log(`📋 REST API Documentation: http://localhost:${PORT}/api`);
+      console.log(`🔗 REST Endpoints:`);
+      console.log(`   - Professionals: http://localhost:${PORT}/api/professionals`);
+      console.log(`   - Employers: http://localhost:${PORT}/api/employers`);
+      console.log(`   - Applications: http://localhost:${PORT}/api/applications`);
     });
 
   } catch (error) {

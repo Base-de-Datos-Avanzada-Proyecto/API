@@ -20,7 +20,6 @@ const connectionOptions = {
   socketTimeoutMS: 45000, // Close connections after 45 seconds of inactivity
   family: 4, // Use IPv4, skip trying IPv6
   bufferCommands: false, // Disable mongoose buffering
-  bufferMaxEntries: 0 // Disable mongoose buffering
 };
 
 /**
