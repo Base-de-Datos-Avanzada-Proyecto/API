@@ -73,17 +73,6 @@ type ProfessionCategoryStats {
 
 Obtiene todas las profesiones con filtros avanzados, ordenamiento y paginación.
 
-**Sintaxis:**
-
-```graphql
-professions(
-  filter: ProfessionFilter
-  sort: ProfessionSort
-  limit: Int
-  offset: Int
-): [Profession!]!
-```
-
 **Filtros disponibles:**
 
 ```graphql
@@ -126,12 +115,6 @@ query GetTechnologyProfessions {
 
 Obtiene una profesión específica por ID.
 
-**Sintaxis:**
-
-```graphql
-profession(id: ID!): Profession
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -164,12 +147,6 @@ query GetProfession {
 
 Obtiene una profesión por su código único.
 
-**Sintaxis:**
-
-```graphql
-professionByCode(code: String!): Profession
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -189,12 +166,6 @@ query GetProfessionByCode {
 ### 4. professionsByCategory
 
 Obtiene profesiones filtradas por categoría.
-
-**Sintaxis:**
-
-```graphql
-professionsByCategory(category: ProfessionCategory!): [Profession!]!
-```
 
 **Ejemplo de uso:**
 
@@ -219,12 +190,6 @@ query GetHealthcareProfessions {
 ### 5. popularProfessions
 
 Obtiene las profesiones más populares basadas en número de profesionales registrados y ofertas activas.
-
-**Sintaxis:**
-
-```graphql
-popularProfessions(limit: Int = 10): [Profession!]!
-```
 
 **Ejemplo de uso:**
 
@@ -251,12 +216,6 @@ query GetPopularProfessions {
 
 Obtiene profesiones filtradas por nivel de demanda.
 
-**Sintaxis:**
-
-```graphql
-professionsByDemand(demandLevel: DemandLevel!): [Profession!]!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -282,12 +241,6 @@ query GetHighDemandProfessions {
 
 Busca profesiones por texto en múltiples campos (nombre, descripción, habilidades, requisitos).
 
-**Sintaxis:**
-
-```graphql
-searchProfessions(searchText: String!): [Profession!]!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -309,12 +262,6 @@ query SearchProfessions {
 
 Obtiene estadísticas agregadas de profesiones por categoría.
 
-**Sintaxis:**
-
-```graphql
-professionStatsByCategory: [ProfessionCategoryStats!]!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -333,12 +280,6 @@ query GetCategoryStatistics {
 ### 9. professionsCount
 
 Cuenta el número total de profesiones con filtros opcionales.
-
-**Sintaxis:**
-
-```graphql
-professionsCount(filter: ProfessionFilter): Int!
-```
 
 **Ejemplo de uso:**
 
@@ -360,29 +301,6 @@ query CountTechnologyProfessions {
 
 Crea una nueva profesión en el catálogo.
 
-**Sintaxis:**
-
-```graphql
-createProfession(input: ProfessionInput!): Profession!
-```
-
-**Input:**
-
-```graphql
-input ProfessionInput {
-  name: String!
-  code: String
-  category: ProfessionCategory!
-  subcategory: String
-  description: String!
-  requirements: [String!]
-  skills: [String!]
-  averageSalaryRange: SalaryRangeInput
-  demandLevel: DemandLevel
-  isActive: Boolean
-}
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -390,7 +308,7 @@ mutation CreateProfession {
   createProfession(
     input: {
       name: "Desarrollador Full-Stack"
-      code: "DEV-FS"
+      code: "DEVFS"
       category: Technology
       subcategory: "Desarrollo de Software"
       description: "Profesional especializado en desarrollo tanto frontend como backend"
@@ -418,12 +336,6 @@ mutation CreateProfession {
 ### 2. updateProfession
 
 Actualiza una profesión existente.
-
-**Sintaxis:**
-
-```graphql
-updateProfession(id: ID!, input: ProfessionUpdateInput!): Profession!
-```
 
 **Ejemplo de uso:**
 
@@ -466,12 +378,6 @@ mutation UpdateProfession {
 
 Elimina una profesión (soft delete - marca como inactiva).
 
-**Sintaxis:**
-
-```graphql
-deleteProfession(id: ID!): Boolean!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -483,12 +389,6 @@ mutation DeleteProfession {
 ### 4. addProfessionRequirement
 
 Agrega un requisito específico a una profesión.
-
-**Sintaxis:**
-
-```graphql
-addProfessionRequirement(id: ID!, requirement: String!): Profession!
-```
 
 **Ejemplo de uso:**
 
@@ -510,12 +410,6 @@ mutation AddRequirement {
 
 Remueve un requisito de una profesión.
 
-**Sintaxis:**
-
-```graphql
-removeProfessionRequirement(id: ID!, requirement: String!): Profession!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -535,12 +429,6 @@ mutation RemoveRequirement {
 
 Agrega una habilidad requerida a una profesión.
 
-**Sintaxis:**
-
-```graphql
-addProfessionSkill(id: ID!, skill: String!): Profession!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -558,12 +446,6 @@ mutation AddSkill {
 
 Remueve una habilidad de una profesión.
 
-**Sintaxis:**
-
-```graphql
-removeProfessionSkill(id: ID!, skill: String!): Profession!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -579,12 +461,6 @@ mutation RemoveSkill {
 ### 8. updateProfessionStats
 
 Actualiza las estadísticas de una profesión específica (contadores de profesionales y ofertas).
-
-**Sintaxis:**
-
-```graphql
-updateProfessionStats(id: ID!): Profession!
-```
 
 **Ejemplo de uso:**
 
@@ -605,12 +481,6 @@ mutation UpdateStats {
 
 Actualiza las estadísticas de todas las profesiones activas en lote.
 
-**Sintaxis:**
-
-```graphql
-updateAllProfessionStats: [Profession!]!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -629,12 +499,6 @@ mutation UpdateAllStats {
 ### 10. toggleProfessionStatus
 
 Cambia el estado activo/inactivo de una profesión.
-
-**Sintaxis:**
-
-```graphql
-toggleProfessionStatus(id: ID!): Profession!
-```
 
 **Ejemplo de uso:**
 
@@ -660,7 +524,7 @@ mutation CreateCompleteProfession {
   createProfession(
     input: {
       name: "Diseñador UX/UI"
-      code: "DES-UX"
+      code: "DESUX"
       category: Arts
       subcategory: "Diseño Digital"
       description: "Profesional especializado en experiencia de usuario y diseño de interfaces digitales"
@@ -739,44 +603,11 @@ query AdvancedProfessionSearch {
 }
 ```
 
-### 3. Dashboard de estadísticas de profesiones
+### 3. Gestión de habilidades y requisitos
+
+Agregar múltiples habilidades
 
 ```graphql
-query ProfessionsDashboard {
-  professionStatsByCategory {
-    category
-    count
-    totalProfessionals
-    totalJobOffers
-    averageSalaryMin
-    averageSalaryMax
-  }
-
-  popularProfessions(limit: 10) {
-    id
-    name
-    category
-    popularity
-    registeredProfessionals
-    activeJobOffers
-  }
-
-  professionsByDemand(demandLevel: Critical) {
-    id
-    name
-    registeredProfessionals
-    activeJobOffers
-  }
-
-  professionsCount(filter: { isActive: true })
-  professionsCount(filter: { demandLevel: High })
-}
-```
-
-### 4. Gestión de habilidades y requisitos
-
-```graphql
-# Agregar múltiples habilidades
 mutation UpdateProfessionSkills($professionId: ID!) {
   addReactSkill: addProfessionSkill(id: $professionId, skill: "React") {
     id
@@ -796,45 +627,7 @@ mutation UpdateProfessionSkills($professionId: ID!) {
 }
 ```
 
-### 5. Análisis de mercado laboral
-
-```graphql
-query MarketAnalysis {
-  technologyProfessions: professionsByCategory(category: Technology) {
-    id
-    name
-    demandLevel
-    registeredProfessionals
-    activeJobOffers
-    averageSalaryRange {
-      min
-      max
-      currency
-    }
-  }
-
-  highDemandProfessions: professionsByDemand(demandLevel: High) {
-    id
-    name
-    category
-    registeredProfessionals
-    activeJobOffers
-  }
-
-  categoryStats: professionStatsByCategory {
-    category
-    count
-    totalProfessionals
-    totalJobOffers
-    averageSalaryMin
-    averageSalaryMax
-  }
-
-  totalActiveProfessions: professionsCount(filter: { isActive: true })
-}
-```
-
-### 6. Búsqueda por múltiples criterios
+### 4. Búsqueda por múltiples criterios
 
 ```graphql
 query MultiCriteriaSearch {
@@ -859,80 +652,6 @@ query MultiCriteriaSearch {
     name
     activeJobOffers
     registeredProfessionals
-  }
-}
-```
-
-### 7. Mantenimiento y actualización masiva
-
-```graphql
-mutation BulkProfessionMaintenance {
-  # Actualizar estadísticas de todas las profesiones
-  updatedProfessions: updateAllProfessionStats {
-    id
-    name
-    registeredProfessionals
-    activeJobOffers
-    popularity
-  }
-}
-```
-
----
-
-## Subscriptions
-
-### 1. professionUpdated
-
-Se suscribe a actualizaciones de una profesión específica.
-
-**Sintaxis:**
-
-```graphql
-subscription ProfessionUpdates($professionId: ID!) {
-  professionUpdated(id: $professionId) {
-    id
-    name
-    registeredProfessionals
-    activeJobOffers
-    demandLevel
-    lastUpdated
-  }
-}
-```
-
-### 2. professionCreated
-
-Se suscribe a nuevas profesiones creadas.
-
-**Sintaxis:**
-
-```graphql
-subscription NewProfessions {
-  professionCreated {
-    id
-    name
-    category
-    demandLevel
-    createdAt
-  }
-}
-```
-
-### 3. professionStatsUpdated
-
-Se suscribe a actualizaciones de estadísticas de profesiones.
-
-**Sintaxis:**
-
-```graphql
-subscription ProfessionStatsUpdates {
-  professionStatsUpdated {
-    id
-    name
-    registeredProfessionals
-    activeJobOffers
-    popularity
   }
 }
 ```

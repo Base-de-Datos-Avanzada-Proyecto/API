@@ -144,10 +144,6 @@ async function startServer() {
       console.log(`📊 GraphQL Playground: http://localhost:${PORT}${apolloServer.graphqlPath}`);
       console.log(`🏥 Health Check: http://localhost:${PORT}/health`);
       console.log(`📋 REST API Documentation: http://localhost:${PORT}/api`);
-      console.log(`🔗 REST Endpoints:`);
-      console.log(`   - Professionals: http://localhost:${PORT}/api/professionals`);
-      console.log(`   - Employers: http://localhost:${PORT}/api/employers`);
-      console.log(`   - Applications: http://localhost:${PORT}/api/applications`);
     });
 
   } catch (error) {

@@ -156,7 +156,16 @@ const professionResolvers = {
      */
     professionStatsByCategory: async () => {
       try {
-        return await Profession.getStatsByCategory();
+        const stats = await Profession.getStatsByCategory();
+
+        return stats.map(s => ({
+          category: s._id || "Desconocido",   // mapear _id → category
+          count: s.count,
+          totalProfessionals: s.totalProfessionals,
+          totalJobOffers: s.totalJobOffers,
+          averageSalaryMin: s.averageSalaryMin,
+          averageSalaryMax: s.averageSalaryMax
+        }));
       } catch (error) {
         throw new Error(`Error fetching profession stats by category: ${error.message}`);
       }

@@ -100,17 +100,6 @@ type VacantPosition {
 
 Obtiene todas las ofertas de trabajo con filtros avanzados, ordenamiento y paginación.
 
-**Sintaxis:**
-
-```graphql
-jobOffers(
-  filter: JobOfferFilter
-  sort: JobOfferSort
-  limit: Int
-  offset: Int
-): [JobOffer!]!
-```
-
 **Filtros disponibles:**
 
 ```graphql
@@ -197,12 +186,6 @@ query GetActiveJobOffers {
 
 Obtiene una oferta de trabajo específica por ID.
 
-**Sintaxis:**
-
-```graphql
-jobOffer(id: ID!): JobOffer
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -275,12 +258,6 @@ query GetJobOfferDetails {
 
 Obtiene ofertas de trabajo de un empleador específico.
 
-**Sintaxis:**
-
-```graphql
-jobOffersByEmployer(employerId: ID!): [JobOffer!]!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -312,12 +289,6 @@ query GetEmployerJobOffers {
 
 Obtiene ofertas filtradas por profesión requerida.
 
-**Sintaxis:**
-
-```graphql
-jobOffersByProfession(professionId: ID!): [JobOffer!]!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -342,12 +313,6 @@ query GetJobOffersByProfession {
 
 Obtiene ofertas de trabajo por cantón.
 
-**Sintaxis:**
-
-```graphql
-jobOffersByCanton(canton: Canton!): [JobOffer!]!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -371,12 +336,6 @@ query GetJobOffersByCanton {
 ### 6. activeJobOffers
 
 Obtiene todas las ofertas de trabajo activas y publicadas.
-
-**Sintaxis:**
-
-```graphql
-activeJobOffers: [JobOffer!]!
-```
 
 **Ejemplo de uso:**
 
@@ -403,12 +362,6 @@ query GetActiveJobOffers {
 ### 7. featuredJobOffers
 
 Obtiene ofertas de trabajo destacadas.
-
-**Sintaxis:**
-
-```graphql
-featuredJobOffers(limit: Int = 10): [JobOffer!]!
-```
 
 **Ejemplo de uso:**
 
@@ -438,12 +391,6 @@ query GetFeaturedJobs {
 
 Obtiene estadísticas generales de ofertas de trabajo.
 
-**Sintaxis:**
-
-```graphql
-jobOfferStats: JobOfferStats!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -460,12 +407,6 @@ query GetJobOfferStatistics {
 ### 9. vacantPositions
 
 Obtiene inventario simplificado de posiciones vacantes para reportes.
-
-**Sintaxis:**
-
-```graphql
-vacantPositions: [VacantPosition!]!
-```
 
 **Ejemplo de uso:**
 
@@ -487,12 +428,6 @@ query GetVacantPositionsReport {
 
 Cuenta el total de ofertas con filtros opcionales.
 
-**Sintaxis:**
-
-```graphql
-jobOffersCount(filter: JobOfferFilter): Int!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -506,12 +441,6 @@ query CountActiveJobs {
 ### 11. searchJobOffers
 
 Busca ofertas por texto en múltiples campos.
-
-**Sintaxis:**
-
-```graphql
-searchJobOffers(searchText: String!): [JobOffer!]!
-```
 
 **Ejemplo de uso:**
 
@@ -539,12 +468,6 @@ query SearchJobs {
 
 Obtiene ofertas que expiran dentro de X días.
 
-**Sintaxis:**
-
-```graphql
-expiringJobOffers(days: Int = 7): [JobOffer!]!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -566,12 +489,6 @@ query GetExpiringJobs {
 ### 13. mostViewedJobOffers
 
 Obtiene las ofertas más vistas.
-
-**Sintaxis:**
-
-```graphql
-mostViewedJobOffers(limit: Int = 10): [JobOffer!]!
-```
 
 **Ejemplo de uso:**
 
@@ -598,48 +515,6 @@ query GetPopularJobs {
 ### 1. createJobOffer
 
 Crea una nueva oferta de trabajo.
-
-**Sintaxis:**
-
-```graphql
-createJobOffer(input: JobOfferInput!): JobOffer!
-```
-
-**Input:**
-
-```graphql
-input JobOfferInput {
-  title: String!
-  description: String!
-  employerId: ID!
-  requiredProfessions: [ID!]!
-  workType: WorkType!
-  workModality: WorkModality!
-  location: JobLocationInput!
-  salary: JobSalaryInput
-  requirements: [String!]
-  preferredSkills: [String!]
-  experienceRequired: Int
-  educationLevel: EducationLevel
-  applicationDeadline: String!
-  maxApplications: Int
-  contactEmail: String
-  contactPhone: String
-  isFeatured: Boolean
-}
-
-input JobLocationInput {
-  canton: Canton!
-  specificLocation: String
-}
-
-input JobSalaryInput {
-  min: Float
-  max: Float
-  currency: Currency
-  isNegotiable: Boolean
-}
-```
 
 **Ejemplo de uso:**
 
@@ -701,12 +576,6 @@ mutation CreateJobOffer {
 
 Actualiza una oferta de trabajo existente.
 
-**Sintaxis:**
-
-```graphql
-updateJobOffer(id: ID!, input: JobOfferUpdateInput!): JobOffer!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -745,12 +614,6 @@ mutation UpdateJobOffer {
 
 Elimina una oferta de trabajo (soft delete).
 
-**Sintaxis:**
-
-```graphql
-deleteJobOffer(id: ID!): Boolean!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -762,12 +625,6 @@ mutation DeleteJobOffer {
 ### 4. publishJobOffer
 
 Publica una oferta de trabajo.
-
-**Sintaxis:**
-
-```graphql
-publishJobOffer(id: ID!): JobOffer!
-```
 
 **Ejemplo de uso:**
 
@@ -790,12 +647,6 @@ mutation PublishJobOffer {
 
 Pausa una oferta de trabajo publicada.
 
-**Sintaxis:**
-
-```graphql
-pauseJobOffer(id: ID!): JobOffer!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -812,12 +663,6 @@ mutation PauseJobOffer {
 ### 6. closeJobOffer
 
 Cierra una oferta de trabajo.
-
-**Sintaxis:**
-
-```graphql
-closeJobOffer(id: ID!, filled: Boolean = false): JobOffer!
-```
 
 **Ejemplo de uso:**
 
@@ -836,12 +681,6 @@ mutation CloseJobOffer {
 ### 7. reopenJobOffer
 
 Reabre una oferta de trabajo cerrada o pausada.
-
-**Sintaxis:**
-
-```graphql
-reopenJobOffer(id: ID!): JobOffer!
-```
 
 **Ejemplo de uso:**
 
@@ -862,12 +701,6 @@ mutation ReopenJobOffer {
 
 Cambia el estado destacado de una oferta.
 
-**Sintaxis:**
-
-```graphql
-toggleJobOfferFeatured(id: ID!): JobOffer!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -885,12 +718,6 @@ mutation ToggleFeaturedJob {
 
 Incrementa el contador de visualizaciones.
 
-**Sintaxis:**
-
-```graphql
-incrementJobOfferViews(id: ID!): JobOffer!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -905,12 +732,6 @@ mutation IncrementViews {
 ### 10. createJobOffers
 
 Crea múltiples ofertas de trabajo (carga masiva).
-
-**Sintaxis:**
-
-```graphql
-createJobOffers(input: [JobOfferInput!]!): [JobOffer!]!
-```
 
 **Ejemplo de uso:**
 
@@ -956,12 +777,6 @@ mutation BulkCreateJobOffers {
 
 Extiende la fecha límite de aplicación.
 
-**Sintaxis:**
-
-```graphql
-extendApplicationDeadline(id: ID!, newDeadline: String!): JobOffer!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -982,16 +797,6 @@ mutation ExtendDeadline {
 ### 12. updateJobOfferRequirements
 
 Actualiza requisitos y habilidades preferidas.
-
-**Sintaxis:**
-
-```graphql
-updateJobOfferRequirements(
-  id: ID!
-  requirements: [String!]!
-  preferredSkills: [String!]!
-): JobOffer!
-```
 
 **Ejemplo de uso:**
 
@@ -1024,12 +829,6 @@ mutation UpdateRequirements {
 ### 13. cloneJobOffer
 
 Clona una oferta de trabajo existente.
-
-**Sintaxis:**
-
-```graphql
-cloneJobOffer(id: ID!, title: String!): JobOffer!
-```
 
 **Ejemplo de uso:**
 
@@ -1322,72 +1121,6 @@ query MonitoringDashboard {
     workType
     applicationDeadline
     status
-  }
-}
-```
-
----
-
-## Subscriptions
-
-### 1. jobOfferCreated
-
-Se suscribe a nuevas ofertas de trabajo creadas.
-
-**Sintaxis:**
-
-```graphql
-subscription NewJobOffers {
-  jobOfferCreated {
-    id
-    title
-    employer {
-      displayName
-    }
-    workType
-    location {
-      canton
-    }
-    createdAt
-  }
-}
-```
-
-### 2. jobOfferUpdated
-
-Se suscribe a actualizaciones de ofertas específicas.
-
-**Sintaxis:**
-
-```graphql
-subscription JobOfferUpdates($id: ID!) {
-  jobOfferUpdated(id: $id) {
-    id
-    title
-    status
-    lastUpdated
-    applicationCount
-    viewCount
-  }
-}
-```
-
-### 3. jobOfferStatusChanged
-
-Se suscribe a cambios de estado de ofertas de un empleador.
-
-**Sintaxis:**
-
-```graphql
-subscription EmployerJobStatusChanges($employerId: ID) {
-  jobOfferStatusChanged(employerId: $employerId) {
-    id
-    title
-    status
-    employer {
-      displayName
-    }
-    lastUpdated
   }
 }
 ```

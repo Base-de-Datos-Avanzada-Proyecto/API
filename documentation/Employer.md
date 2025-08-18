@@ -254,29 +254,6 @@ query SearchEmployers {
 
 Crea un nuevo empleador.
 
-**Input:**
-
-```graphql
-input EmployerInput {
-  identification: String!
-  employerType: EmployerType!
-  name: String!
-  lastName: String
-  legalName: String
-  businessSector: String
-  email: String!
-  phone: String!
-  alternativePhone: String
-  canton: Canton!
-  address: String!
-  website: String
-  description: String
-  expectedHires: Int
-  preferredProfessions: [ID!]
-  registrationNumber: String
-}
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -307,12 +284,6 @@ mutation CreateEmployer {
 ### 2. updateEmployer
 
 Actualiza un empleador existente.
-
-**Sintaxis:**
-
-```graphql
-updateEmployer(id: ID!, input: EmployerUpdateInput!): Employer!
-```
 
 **Ejemplo de uso:**
 
@@ -436,22 +407,22 @@ mutation BulkCreateEmployers {
   createEmployers(
     input: [
       {
-        identification: "117890123"
+        identification: "1-1789-0122"
         employerType: fisica
         name: "Juan"
         lastName: "Pérez"
         email: "juan@email.com"
-        phone: "87654321"
+        phone: "8765-4321"
         canton: Puntarenas
         address: "Puntarenas Centro"
       }
       {
-        identification: "3101234567"
+        identification: "3-101-234511"
         employerType: juridica
         name: "TechCorp"
         legalName: "Corporación Tecnológica S.A."
         email: "info@techcorp.com"
-        phone: "25551234"
+        phone: "2555-1234"
         canton: Esparza
         address: "Esparza Centro"
         businessSector: "Tecnología"
@@ -470,18 +441,6 @@ mutation BulkCreateEmployers {
 
 Actualiza información de contacto específica del empleador.
 
-**Sintaxis:**
-
-```graphql
-updateEmployerContact(
-  id: ID!
-  email: String
-  phone: String
-  alternativePhone: String
-  address: String
-): Employer!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -489,8 +448,8 @@ mutation UpdateEmployerContact {
   updateEmployerContact(
     id: "64a7b8c9d0e1f2345678901a"
     email: "nuevo.email@empresa.com"
-    phone: "87651234"
-    alternativePhone: "25559876"
+    phone: "8765-1234"
+    alternativePhone: "2555-9876"
     address: "Nueva dirección empresarial"
   ) {
     id
@@ -499,100 +458,6 @@ mutation UpdateEmployerContact {
     alternativePhone
     address
     lastUpdated
-  }
-}
-```
-
----
-
-## Casos de Uso Comunes
-
-### 1. Registro completo de empleador
-
-```graphql
-mutation RegisterEmployer {
-  createEmployer(
-    input: {
-      identification: "117890123"
-      employerType: fisica
-      name: "María"
-      lastName: "González"
-      email: "maria.gonzalez@email.com"
-      phone: "87654321"
-      canton: Puntarenas
-      address: "Barrio El Carmen, Puntarenas"
-      businessSector: "Comercio"
-      description: "Tienda de ropa y accesorios"
-      expectedHires: 3
-      website: "https://tiendamaria.com"
-    }
-  ) {
-    id
-    displayName
-    formattedIdentification
-    registrationDate
-    isActive
-  }
-}
-```
-
-### 2. Búsqueda avanzada de empleadores
-
-```graphql
-query AdvancedEmployerSearch {
-  employers(
-    filter: {
-      canton: Puntarenas
-      isActive: true
-      isVerified: true
-      businessSector: "Tecnología"
-    }
-    sort: { field: name, order: ASC }
-    limit: 50
-  ) {
-    id
-    displayName
-    businessSector
-    email
-    phone
-    activeJobOffersCount
-    preferredProfessions {
-      name
-    }
-  }
-}
-```
-
-### 3. Dashboard de empleador
-
-```graphql
-query EmployerDashboard($employerId: ID!) {
-  employer(id: $employerId) {
-    id
-    displayName
-    email
-    isVerified
-    registrationDate
-    activeJobOffersCount
-
-    jobOffers {
-      id
-      title
-      status
-      applicationsCount
-      publishedAt
-    }
-
-    preferredProfessions {
-      id
-      name
-    }
-  }
-
-  employerStats {
-    total
-    active
-    verified
   }
 }
 ```

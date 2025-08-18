@@ -56,39 +56,6 @@ type ExpectedSalary {
 - `Priority`: Low, Medium, High
 - `Currency`: CRC, USD
 
-### Tipos de Respuesta
-
-```graphql
-type ApplicationResponse {
-  success: Boolean!
-  message: String!
-  application: Application
-  errors: [String!]
-}
-
-type ApplicationsResponse {
-  success: Boolean!
-  message: String!
-  applications: [Application!]!
-  totalCount: Int!
-  errors: [String!]
-}
-
-type ApplicationStats {
-  total: Int!
-  pending: Int!
-  accepted: Int!
-  rejected: Int!
-  avgDaysToReview: Float
-}
-
-type CanApplyResponse {
-  canApply: Boolean!
-  reason: String!
-  monthlyCount: Int!
-}
-```
-
 ---
 
 ## Queries
@@ -96,12 +63,6 @@ type CanApplyResponse {
 ### 1. application
 
 Obtiene una aplicación específica por ID.
-
-**Sintaxis:**
-
-```graphql
-application(id: ID!): ApplicationResponse!
-```
 
 **Ejemplo de uso:**
 
@@ -152,18 +113,6 @@ query GetApplication {
 ### 2. applications
 
 Obtiene aplicaciones con filtros avanzados y paginación.
-
-**Sintaxis:**
-
-```graphql
-applications(
-  filters: ApplicationFilters
-  limit: Int = 10
-  offset: Int = 0
-  sortBy: String = "appliedAt"
-  sortOrder: String = "desc"
-): ApplicationsResponse!
-```
 
 **Filtros disponibles:**
 
@@ -229,17 +178,6 @@ query GetFilteredApplications {
 
 Obtiene aplicaciones de un profesional específico.
 
-**Sintaxis:**
-
-```graphql
-applicationsByProfessional(
-  professionalId: ID!
-  status: ApplicationStatus
-  limit: Int = 10
-  offset: Int = 0
-): ApplicationsResponse!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -280,17 +218,6 @@ query GetProfessionalApplications {
 
 Obtiene aplicaciones para una oferta de trabajo específica.
 
-**Sintaxis:**
-
-```graphql
-applicationsByJobOffer(
-  jobOfferId: ID!
-  status: ApplicationStatus
-  limit: Int = 10
-  offset: Int = 0
-): ApplicationsResponse!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -330,15 +257,6 @@ query GetJobOfferApplications {
 
 Verifica si un profesional puede aplicar a una oferta específica.
 
-**Sintaxis:**
-
-```graphql
-canProfessionalApply(
-  professionalId: ID!
-  jobOfferId: ID!
-): CanApplyResponse!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -358,12 +276,6 @@ query CheckApplicationEligibility {
 
 Obtiene estadísticas generales de aplicaciones.
 
-**Sintaxis:**
-
-```graphql
-applicationStats: ApplicationStats!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -382,12 +294,6 @@ query GetApplicationStatistics {
 
 Obtiene el conteo mensual de aplicaciones de un profesional.
 
-**Sintaxis:**
-
-```graphql
-monthlyApplicationCount(professionalId: ID!): Int!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -403,32 +309,6 @@ query GetMonthlyCount {
 ### 1. createApplication
 
 Crea una nueva aplicación.
-
-**Sintaxis:**
-
-```graphql
-createApplication(input: ApplicationInput!): ApplicationResponse!
-```
-
-**Input:**
-
-```graphql
-input ApplicationInput {
-  professionalId: ID!
-  jobOfferId: ID!
-  coverLetter: String
-  motivation: String
-  expectedSalary: ExpectedSalaryInput
-  availabilityDate: String
-  additionalSkills: [String!]
-}
-
-input ExpectedSalaryInput {
-  amount: Float
-  currency: Currency = CRC
-  isNegotiable: Boolean = true
-}
-```
 
 **Ejemplo de uso:**
 
@@ -478,27 +358,6 @@ mutation CreateApplication {
 
 Actualiza una aplicación existente (solo aplicaciones pendientes).
 
-**Sintaxis:**
-
-```graphql
-updateApplication(
-  id: ID!
-  input: ApplicationUpdateInput!
-): ApplicationResponse!
-```
-
-**Input:**
-
-```graphql
-input ApplicationUpdateInput {
-  coverLetter: String
-  motivation: String
-  expectedSalary: ExpectedSalaryInput
-  availabilityDate: String
-  additionalSkills: [String!]
-}
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -533,25 +392,6 @@ mutation UpdateApplication {
 
 Revisa una aplicación (por empleador).
 
-**Sintaxis:**
-
-```graphql
-reviewApplication(
-  id: ID!
-  input: ReviewApplicationInput!
-): ApplicationResponse!
-```
-
-**Input:**
-
-```graphql
-input ReviewApplicationInput {
-  status: ApplicationStatus!
-  notes: String
-  reviewerId: ID
-}
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -584,16 +424,6 @@ mutation ReviewApplication {
 
 Acepta una aplicación específica.
 
-**Sintaxis:**
-
-```graphql
-acceptApplication(
-  id: ID!
-  reviewerId: ID
-  notes: String
-): ApplicationResponse!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -625,16 +455,6 @@ mutation AcceptApplication {
 
 Rechaza una aplicación específica.
 
-**Sintaxis:**
-
-```graphql
-rejectApplication(
-  id: ID!
-  reviewerId: ID
-  reason: String
-): ApplicationResponse!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -661,15 +481,6 @@ mutation RejectApplication {
 
 Establece la prioridad de una aplicación.
 
-**Sintaxis:**
-
-```graphql
-setApplicationPriority(
-  id: ID!
-  priority: Priority!
-): ApplicationResponse!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -694,12 +505,6 @@ mutation SetPriority {
 
 Elimina una aplicación (soft delete).
 
-**Sintaxis:**
-
-```graphql
-deleteApplication(id: ID!): ApplicationResponse!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -712,164 +517,6 @@ mutation DeleteApplication {
       isActive
     }
     errors
-  }
-}
-```
-
----
-
-## Casos de Uso Comunes
-
-### 1. Flujo completo de aplicación
-
-```graphql
-# 1. Verificar elegibilidad
-query CheckEligibility {
-  canProfessionalApply(
-    professionalId: "64a7b8c9d0e1f2345678901b"
-    jobOfferId: "64a7b8c9d0e1f2345678901c"
-  ) {
-    canApply
-    reason
-    monthlyCount
-  }
-}
-
-# 2. Crear aplicación
-mutation CreateApplication {
-  createApplication(
-    input: {
-      professionalId: "64a7b8c9d0e1f2345678901b"
-      jobOfferId: "64a7b8c9d0e1f2345678901c"
-      coverLetter: "Mi carta de presentación..."
-      motivation: "Mi motivación para este puesto..."
-      expectedSalary: { amount: 750000, currency: CRC, isNegotiable: true }
-      availabilityDate: "2024-03-01"
-      additionalSkills: ["JavaScript", "React", "Node.js"]
-    }
-  ) {
-    success
-    message
-    application {
-      id
-      status
-      appliedAt
-    }
-    errors
-  }
-}
-```
-
-### 2. Dashboard de empleador para revisar aplicaciones
-
-```graphql
-query EmployerApplicationsDashboard($jobOfferId: ID!) {
-  applicationsByJobOffer(jobOfferId: $jobOfferId, limit: 100) {
-    success
-    totalCount
-    applications {
-      id
-      status
-      priority
-      appliedAt
-      daysSinceApplication
-
-      professional {
-        name
-        lastName
-        email
-        phone
-      }
-
-      expectedSalary {
-        amount
-        currency
-        isNegotiable
-      }
-
-      additionalSkills
-      coverLetter
-      motivation
-    }
-  }
-
-  applicationStats {
-    total
-    pending
-    accepted
-    rejected
-    avgDaysToReview
-  }
-}
-```
-
-### 3. Panel de aplicaciones del profesional
-
-```graphql
-query ProfessionalApplicationsPanel($professionalId: ID!) {
-  applicationsByProfessional(professionalId: $professionalId, limit: 50) {
-    success
-    totalCount
-    applications {
-      id
-      status
-      appliedAt
-      reviewedAt
-      priority
-      isReviewed
-      notes
-
-      jobOffer {
-        id
-        title
-        company
-        location {
-          canton
-        }
-        applicationDeadline
-        status
-      }
-
-      expectedSalary {
-        amount
-        currency
-        isNegotiable
-      }
-    }
-  }
-
-  monthlyApplicationCount(professionalId: $professionalId)
-}
-```
-
-### 4. Proceso de revisión masiva
-
-```graphql
-mutation BatchReviewApplications {
-  # Aceptar aplicación prioritaria
-  acceptApplication(
-    id: "64a7b8c9d0e1f2345678901a"
-    reviewerId: "64a7b8c9d0e1f2345678901d"
-    notes: "Perfil excepcional, proceder con entrevista."
-  ) {
-    success
-    application {
-      id
-      status
-    }
-  }
-
-  # Rechazar aplicación que no cumple requisitos
-  rejectApplication(
-    id: "64a7b8c9d0e1f2345678901b"
-    reviewerId: "64a7b8c9d0e1f2345678901d"
-    reason: "No cumple con la experiencia mínima requerida."
-  ) {
-    success
-    application {
-      id
-      status
-    }
   }
 }
 ```

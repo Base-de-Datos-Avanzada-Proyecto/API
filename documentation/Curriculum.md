@@ -54,17 +54,6 @@ type Curriculum {
 
 Obtiene todos los currículums con filtros avanzados y paginación.
 
-**Sintaxis:**
-
-```graphql
-curricula(
-  filter: CurriculumFilter
-  sort: CurriculumSort
-  limit: Int
-  offset: Int
-): [Curriculum!]!
-```
-
 **Filtros disponibles:**
 
 ```graphql
@@ -124,12 +113,6 @@ query GetPublicCurricula {
 ### 2. curriculum
 
 Obtiene un currículum específico por ID.
-
-**Sintaxis:**
-
-```graphql
-curriculum(id: ID!): Curriculum
-```
 
 **Ejemplo de uso:**
 
@@ -225,12 +208,6 @@ query GetCurriculum {
 
 Obtiene el currículum de un profesional específico.
 
-**Sintaxis:**
-
-```graphql
-curriculumByProfessional(professionalId: ID!): Curriculum
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -264,12 +241,6 @@ query GetProfessionalCurriculum {
 
 Obtiene currículums filtrados por profesión.
 
-**Sintaxis:**
-
-```graphql
-curriculaByProfession(professionId: ID!): [Curriculum!]!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -293,12 +264,6 @@ query GetCurriculaByProfession {
 ### 5. curriculaByEducationLevel
 
 Obtiene currículums por nivel educativo.
-
-**Sintaxis:**
-
-```graphql
-curriculaByEducationLevel(educationLevel: EducationLevel!): [Curriculum!]!
-```
 
 **Ejemplo de uso:**
 
@@ -325,12 +290,6 @@ query GetMastersDegreeHolders {
 
 Obtiene currículums por categoría de habilidad.
 
-**Sintaxis:**
-
-```graphql
-curriculaBySkillCategory(category: SkillCategory!): [Curriculum!]!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -354,12 +313,6 @@ query GetTechnicalProfessionals {
 
 Obtiene todos los currículums completados.
 
-**Sintaxis:**
-
-```graphql
-completedCurricula: [Curriculum!]!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -380,12 +333,6 @@ query GetCompletedCurricula {
 ### 8. publicCurricula
 
 Obtiene currículums públicos y completados.
-
-**Sintaxis:**
-
-```graphql
-publicCurricula: [Curriculum!]!
-```
 
 **Ejemplo de uso:**
 
@@ -417,12 +364,6 @@ query GetPublicCurricula {
 
 Busca currículums por texto en múltiples campos.
 
-**Sintaxis:**
-
-```graphql
-searchCurricula(searchText: String!): [Curriculum!]!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -451,12 +392,6 @@ query SearchCurricula {
 
 Obtiene estadísticas de currículums por profesión.
 
-**Sintaxis:**
-
-```graphql
-curriculaProfessionStats: [CurriculumProfessionStats!]!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -476,12 +411,6 @@ query GetProfessionStats {
 
 Obtiene estadísticas por nivel educativo.
 
-**Sintaxis:**
-
-```graphql
-curriculaEducationStats: [CurriculumEducationStats!]!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -497,12 +426,6 @@ query GetEducationStats {
 ### 12. curriculaSkillStats
 
 Obtiene estadísticas por categorías de habilidades.
-
-**Sintaxis:**
-
-```graphql
-curriculaSkillStats: [CurriculumSkillStats!]!
-```
 
 **Ejemplo de uso:**
 
@@ -520,12 +443,6 @@ query GetSkillStats {
 
 Cuenta currículums con filtros opcionales.
 
-**Sintaxis:**
-
-```graphql
-curriculaCount(filter: CurriculumFilter): Int!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -537,12 +454,6 @@ query CountPublicCurricula {
 ### 14. curriculaByExperienceRange
 
 Obtiene currículums por rango de experiencia.
-
-**Sintaxis:**
-
-```graphql
-curriculaByExperienceRange(minYears: Int!, maxYears: Int!): [Curriculum!]!
-```
 
 **Ejemplo de uso:**
 
@@ -566,12 +477,6 @@ query GetMidLevelProfessionals {
 
 Obtiene currículums actualizados recientemente.
 
-**Sintaxis:**
-
-```graphql
-recentlyUpdatedCurricula(limit: Int): [Curriculum!]!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -591,12 +496,6 @@ query GetRecentlyUpdated {
 ### 16. curriculaRequiringReview
 
 Obtiene currículums que requieren revisión.
-
-**Sintaxis:**
-
-```graphql
-curriculaRequiringReview: [Curriculum!]!
-```
 
 **Ejemplo de uso:**
 
@@ -621,12 +520,6 @@ query GetCurriculaNeedingReview {
 ### 1. createCurriculum
 
 Crea un nuevo currículum.
-
-**Sintaxis:**
-
-```graphql
-createCurriculum(input: CurriculumInput!): Curriculum!
-```
 
 **Ejemplo de uso:**
 
@@ -691,12 +584,6 @@ mutation CreateCurriculum {
 
 Actualiza un currículum existente.
 
-**Sintaxis:**
-
-```graphql
-updateCurriculum(id: ID!, input: CurriculumUpdateInput!): Curriculum!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -722,12 +609,6 @@ mutation UpdateCurriculum {
 
 Elimina un currículum (soft delete).
 
-**Sintaxis:**
-
-```graphql
-deleteCurriculum(id: ID!): Boolean!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -739,17 +620,6 @@ mutation DeleteCurriculum {
 ### 4. addProfessionToCurriculum
 
 Agrega una profesión al currículum.
-
-**Sintaxis:**
-
-```graphql
-addProfessionToCurriculum(
-  id: ID!
-  professionId: ID!
-  experienceYears: Int
-  proficiencyLevel: ProficiencyLevel
-): Curriculum!
-```
 
 **Ejemplo de uso:**
 
@@ -777,21 +647,33 @@ mutation AddProfession {
 
 Remueve una profesión del currículum.
 
-**Sintaxis:**
+**Ejemplo de uso:**
 
 ```graphql
-removeProfessionFromCurriculum(id: ID!, professionId: ID!): Curriculum!
+mutation RemoveProfessionFromCurriculum {
+  removeProfessionFromCurriculum(
+    id: "64a1b2c3d4e5f6789012345"
+    professionId: "64a1b2c3d4e5f6789012999"
+  ) {
+    id
+    professions {
+      professionId {
+        id
+        name
+      }
+      experienceYears
+      proficiencyLevel
+      registrationDate
+    }
+    isComplete
+    updatedAt
+  }
+}
 ```
 
 ### 6. addEducationEntry
 
 Agrega una entrada de educación.
-
-**Sintaxis:**
-
-```graphql
-addEducationEntry(id: ID!, education: EducationInput!): Curriculum!
-```
 
 **Ejemplo de uso:**
 
@@ -826,31 +708,68 @@ mutation AddEducation {
 
 Actualiza una entrada de educación.
 
-**Sintaxis:**
+**Ejemplo de uso:**
 
 ```graphql
-updateEducationEntry(id: ID!, educationId: String!, education: EducationInput!): Curriculum!
+mutation UpdateEducationEntry {
+  updateEducationEntry(
+    id: "64a1b2c3d4e5f6789012345"
+    educationId: "64a1b2c3d4e5f6789012111"
+    education: {
+      institution: "Universidad de Costa Rica"
+      degree: "Licenciatura en Ingeniería en Computación"
+      fieldOfStudy: "Ingeniería de Software"
+      educationLevel: Bachelor
+      startDate: "2018-03-01"
+      endDate: "2022-12-15"
+      isCompleted: true
+      gpa: 9.2
+      description: "Especialización en desarrollo de software y gestión de proyectos tecnológicos"
+    }
+  ) {
+    id
+    education {
+      id
+      institution
+      degree
+      fieldOfStudy
+      educationLevel
+      gpa
+      isCompleted
+    }
+    updatedAt
+  }
+}
 ```
 
 ### 8. removeEducationEntry
 
 Remueve una entrada de educación.
 
-**Sintaxis:**
+**Ejemplo de uso:**
 
 ```graphql
-removeEducationEntry(id: ID!, educationId: String!): Curriculum!
+mutation RemoveEducationEntry {
+  removeEducationEntry(
+    id: "64a1b2c3d4e5f6789012345"
+    educationId: "64a1b2c3d4e5f6789012222"
+  ) {
+    id
+    education {
+      id
+      institution
+      degree
+      educationLevel
+    }
+    highestEducation
+    updatedAt
+  }
+}
 ```
 
 ### 9. addWorkExperienceEntry
 
 Agrega experiencia laboral.
-
-**Sintaxis:**
-
-```graphql
-addWorkExperienceEntry(id: ID!, experience: WorkExperienceInput!): Curriculum!
-```
 
 **Ejemplo de uso:**
 
@@ -890,31 +809,78 @@ mutation AddWorkExperience {
 
 Actualiza experiencia laboral.
 
-**Sintaxis:**
+**Ejemplo de uso:**
 
 ```graphql
-updateWorkExperienceEntry(id: ID!, experienceId: String!, experience: WorkExperienceInput!): Curriculum!
+mutation UpdateWorkExperienceEntry {
+  updateWorkExperienceEntry(
+    id: "64a1b2c3d4e5f6789012345"
+    experienceId: "64a1b2c3d4e5f6789012333"
+    experience: {
+      company: "TechCorp Solutions"
+      position: "Senior Frontend Developer"
+      startDate: "2022-01-15"
+      endDate: "2024-06-30"
+      isCurrentJob: false
+      description: "Lideré el desarrollo de aplicaciones web usando React y TypeScript"
+      achievements: [
+        "Mejoré el rendimiento de la aplicación en un 40%"
+        "Implementé arquitectura de microfrontends"
+        "Mentoré a 3 desarrolladores junior"
+      ]
+      skills: ["React", "TypeScript", "Node.js", "GraphQL"]
+      salary: { amount: 2500000, currency: CRC }
+    }
+  ) {
+    id
+    workExperience {
+      id
+      company
+      position
+      isCurrentJob
+      achievements
+      skills
+      salary {
+        amount
+        currency
+      }
+    }
+    totalWorkExperience
+    updatedAt
+  }
+}
 ```
 
 ### 11. removeWorkExperienceEntry
 
 Remueve experiencia laboral.
 
-**Sintaxis:**
+**Ejemplo de uso:**
 
 ```graphql
-removeWorkExperienceEntry(id: ID!, experienceId: String!): Curriculum!
+mutation RemoveWorkExperienceEntry {
+  removeWorkExperienceEntry(
+    id: "64a1b2c3d4e5f6789012345"
+    experienceId: "64a1b2c3d4e5f6789012444"
+  ) {
+    id
+    workExperience {
+      id
+      company
+      position
+      startDate
+      endDate
+    }
+    totalWorkExperience
+    isComplete
+    updatedAt
+  }
+}
 ```
 
 ### 12. addCertification
 
 Agrega una certificación.
-
-**Sintaxis:**
-
-```graphql
-addCertification(id: ID!, certification: CertificationInput!): Curriculum!
-```
 
 **Ejemplo de uso:**
 
@@ -947,31 +913,64 @@ mutation AddCertification {
 
 Actualiza una certificación.
 
-**Sintaxis:**
+**Ejemplo de uso:**
 
 ```graphql
-updateCertification(id: ID!, certificationId: String!, certification: CertificationInput!): Curriculum!
+mutation UpdateCertification {
+  updateCertification(
+    id: "64a1b2c3d4e5f6789012345"
+    certificationId: "64a1b2c3d4e5f6789012555"
+    certification: {
+      name: "AWS Certified Solutions Architect - Professional"
+      issuingOrganization: "Amazon Web Services"
+      issueDate: "2023-08-15"
+      expirationDate: "2026-08-15"
+      credentialId: "AWS-PSA-2023-001234"
+      credentialUrl: "https://aws.amazon.com/verification/AWS-PSA-2023-001234"
+      isActive: true
+    }
+  ) {
+    id
+    certifications {
+      id
+      name
+      issuingOrganization
+      issueDate
+      expirationDate
+      isActive
+    }
+    updatedAt
+  }
+}
 ```
 
 ### 14. removeCertification
 
 Remueve una certificación.
 
-**Sintaxis:**
+**Ejemplo de uso:**
 
 ```graphql
-removeCertification(id: ID!, certificationId: String!): Curriculum!
+mutation RemoveCertification {
+  removeCertification(
+    id: "64a1b2c3d4e5f6789012345"
+    certificationId: "64a1b2c3d4e5f6789012666"
+  ) {
+    id
+    certifications {
+      id
+      name
+      issuingOrganization
+      isActive
+    }
+    updatedAt
+  }
+}
 ```
 
 ### 15. addSkill
 
 Agrega una habilidad.
-
-**Sintaxis:**
-
-```graphql
-addSkill(id: ID!, skill: SkillInput!): Curriculum!
-```
 
 **Ejemplo de uso:**
 
@@ -1001,31 +1000,56 @@ mutation AddSkill {
 
 Actualiza una habilidad.
 
-**Sintaxis:**
+**Ejemplo de uso:**
 
 ```graphql
-updateSkill(id: ID!, skillName: String!, skill: SkillInput!): Curriculum!
+mutation UpdateSkill {
+  updateSkill(
+    id: "64a1b2c3d4e5f6789012345"
+    skillName: "JavaScript"
+    skill: {
+      name: "JavaScript"
+      category: Technical
+      proficiencyLevel: Expert
+      yearsOfExperience: 6
+    }
+  ) {
+    id
+    skills {
+      name
+      category
+      proficiencyLevel
+      yearsOfExperience
+    }
+    updatedAt
+  }
+}
 ```
 
 ### 17. removeSkill
 
 Remueve una habilidad.
 
-**Sintaxis:**
+**Ejemplo de uso:**
 
 ```graphql
-removeSkill(id: ID!, skillName: String!): Curriculum!
+mutation RemoveSkill {
+  removeSkill(id: "64a1b2c3d4e5f6789012345", skillName: "jQuery") {
+    id
+    skills {
+      name
+      category
+      proficiencyLevel
+      yearsOfExperience
+    }
+    updatedAt
+  }
+}
 ```
 
 ### 18. addLanguage
 
 Agrega un idioma.
-
-**Sintaxis:**
-
-```graphql
-addLanguage(id: ID!, language: LanguageInput!): Curriculum!
-```
 
 **Ejemplo de uso:**
 
@@ -1053,31 +1077,49 @@ mutation AddLanguage {
 
 Actualiza un idioma.
 
-**Sintaxis:**
+**Ejemplo de uso:**
 
 ```graphql
-updateLanguage(id: ID!, languageName: String!, language: LanguageInput!): Curriculum!
+mutation UpdateLanguage {
+  updateLanguage(
+    id: "64a1b2c3d4e5f6789012345"
+    languageName: "English"
+    language: { language: "English", proficiency: Fluent, certified: true }
+  ) {
+    id
+    languages {
+      language
+      proficiency
+      certified
+    }
+    updatedAt
+  }
+}
 ```
 
 ### 20. removeLanguage
 
 Remueve un idioma.
 
-**Sintaxis:**
+**Ejemplo de uso:**
 
 ```graphql
-removeLanguage(id: ID!, languageName: String!): Curriculum!
+mutation RemoveLanguage {
+  removeLanguage(id: "64a1b2c3d4e5f6789012345", languageName: "German") {
+    id
+    languages {
+      language
+      proficiency
+      certified
+    }
+    updatedAt
+  }
+}
 ```
 
 ### 21. updatePortfolio
 
 Actualiza el portafolio.
-
-**Sintaxis:**
-
-```graphql
-updatePortfolio(id: ID!, portfolio: PortfolioInput!): Curriculum!
-```
 
 **Ejemplo de uso:**
 
@@ -1116,12 +1158,6 @@ mutation UpdatePortfolio {
 
 Agrega una referencia.
 
-**Sintaxis:**
-
-```graphql
-addReference(id: ID!, reference: ReferenceInput!): Curriculum!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -1152,31 +1188,63 @@ mutation AddReference {
 
 Actualiza una referencia.
 
-**Sintaxis:**
+**Ejemplo de uso:**
 
 ```graphql
-updateReference(id: ID!, referenceId: String!, reference: ReferenceInput!): Curriculum!
+mutation UpdateReference {
+  updateReference(
+    id: "64a1b2c3d4e5f6789012345"
+    referenceId: "64a1b2c3d4e5f6789012777"
+    reference: {
+      name: "María González"
+      position: "Senior Software Engineering Manager"
+      company: "TechCorp Solutions"
+      email: "maria.gonzalez@techcorp.com"
+      phone: "+506 8888-9999"
+      relationship: Supervisor
+    }
+  ) {
+    id
+    references {
+      name
+      position
+      company
+      email
+      phone
+      relationship
+    }
+    updatedAt
+  }
+}
 ```
 
 ### 24. removeReference
 
 Remueve una referencia.
 
-**Sintaxis:**
+**Ejemplo de uso:**
 
 ```graphql
-removeReference(id: ID!, referenceId: String!): Curriculum!
+mutation RemoveReference {
+  removeReference(
+    id: "64a1b2c3d4e5f6789012345"
+    referenceId: "64a1b2c3d4e5f6789012888"
+  ) {
+    id
+    references {
+      name
+      position
+      company
+      relationship
+    }
+    updatedAt
+  }
+}
 ```
 
 ### 25. markCurriculumAsComplete
 
 Marca el currículum como completado.
-
-**Sintaxis:**
-
-```graphql
-markCurriculumAsComplete(id: ID!): Curriculum!
-```
 
 **Ejemplo de uso:**
 
@@ -1194,12 +1262,6 @@ mutation MarkAsComplete {
 
 Cambia la visibilidad pública del currículum.
 
-**Sintaxis:**
-
-```graphql
-toggleCurriculumVisibility(id: ID!): Curriculum!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -1215,12 +1277,6 @@ mutation ToggleVisibility {
 ### 27. updateCurriculumSummary
 
 Actualiza resumen y objetivos.
-
-**Sintaxis:**
-
-```graphql
-updateCurriculumSummary(id: ID!, summary: String, objectives: String): Curriculum!
-```
 
 **Ejemplo de uso:**
 
@@ -1242,12 +1298,6 @@ mutation UpdateSummary {
 ### 28. reviewCurriculum
 
 Actualiza la fecha de última revisión.
-
-**Sintaxis:**
-
-```graphql
-reviewCurriculum(id: ID!): Curriculum!
-```
 
 **Ejemplo de uso:**
 
@@ -1477,66 +1527,5 @@ query MarketAnalysis {
 
   curriculaCount(filter: { isComplete: true })
   curriculaCount(filter: { isPublic: true })
-}
-```
-
----
-
-## Subscriptions
-
-### 1. curriculumUpdated
-
-Se suscribe a actualizaciones de un currículum específico.
-
-**Sintaxis:**
-
-```graphql
-subscription CurriculumUpdates($curriculumId: ID!) {
-  curriculumUpdated(id: $curriculumId) {
-    id
-    version
-    updatedAt
-    isComplete
-    isPublic
-  }
-}
-```
-
-### 2. curriculumCreated
-
-Se suscribe a nuevos currículums creados.
-
-**Sintaxis:**
-
-```graphql
-subscription NewCurricula {
-  curriculumCreated {
-    id
-    professional {
-      name
-      lastName
-    }
-    createdAt
-  }
-}
-```
-
-### 3. curriculumCompleted
-
-Se suscribe a currículums marcados como completados.
-
-**Sintaxis:**
-
-```graphql
-subscription CompletedCurricula {
-  curriculumCompleted {
-    id
-    professional {
-      name
-      lastName
-    }
-    isComplete
-    completedAt: updatedAt
-  }
 }
 ```

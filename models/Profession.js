@@ -96,7 +96,11 @@ const professionSchema = new mongoose.Schema({
       min: [0, 'Maximum salary cannot be negative'],
       validate: {
         validator: function(value) {
-          return !this.averageSalaryRange.min || value >= this.averageSalaryRange.min;
+          // Verificar si averageSalaryRange existe y tiene min antes de comparar
+          if (!this.averageSalaryRange || this.averageSalaryRange.min === null || this.averageSalaryRange.min === undefined) {
+            return true; // Si no hay min definido, no validar la comparación
+          }
+          return value >= this.averageSalaryRange.min;
         },
         message: 'Maximum salary must be greater than or equal to minimum salary'
       }

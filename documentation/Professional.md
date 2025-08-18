@@ -82,17 +82,6 @@ type ApplicationLimitStatus {
 
 Obtiene todos los profesionales con filtros avanzados y paginación.
 
-**Sintaxis:**
-
-```graphql
-professionals(
-  filter: ProfessionalFilter
-  sort: ProfessionalSort
-  limit: Int
-  offset: Int
-): [Professional!]!
-```
-
 **Filtros disponibles:**
 
 ```graphql
@@ -147,12 +136,6 @@ query GetActiveProfessionals {
 ### 2. professional
 
 Obtiene un profesional específico por ID.
-
-**Sintaxis:**
-
-```graphql
-professional(id: ID!): Professional
-```
 
 **Ejemplo de uso:**
 
@@ -210,12 +193,6 @@ query GetProfessional {
 
 Busca un profesional por su número de cédula.
 
-**Sintaxis:**
-
-```graphql
-professionalByCedula(cedula: String!): Professional
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -241,12 +218,6 @@ query GetProfessionalByCedula {
 ### 4. professionalsByCanton
 
 Obtiene profesionales de un cantón específico.
-
-**Sintaxis:**
-
-```graphql
-professionalsByCanton(canton: Canton!): [Professional!]!
-```
 
 **Ejemplo de uso:**
 
@@ -274,12 +245,6 @@ query GetProfessionalsByLocation {
 ### 5. professionalsByProfession
 
 Obtiene profesionales que tienen una profesión específica (a través del currículum).
-
-**Sintaxis:**
-
-```graphql
-professionalsByProfession(professionId: ID!): [Professional!]!
-```
 
 **Ejemplo de uso:**
 
@@ -310,12 +275,6 @@ query GetProfessionalsByProfession {
 
 Obtiene profesionales filtrados por género.
 
-**Sintaxis:**
-
-```graphql
-professionalsByGender(gender: Gender!): [Professional!]!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -342,12 +301,6 @@ query GetFemaleProfeesionals {
 
 Obtiene estadísticas de profesionales por género.
 
-**Sintaxis:**
-
-```graphql
-professionalGenderStats: [ProfessionalGenderStats!]!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -362,12 +315,6 @@ query GetGenderStatistics {
 ### 8. professionalProfessionStats
 
 Obtiene estadísticas de profesionales por área profesional.
-
-**Sintaxis:**
-
-```graphql
-professionalProfessionStats: [ProfessionalProfessionStats!]!
-```
 
 **Ejemplo de uso:**
 
@@ -388,12 +335,6 @@ query GetProfessionStatistics {
 
 Cuenta el número total de profesionales con filtros opcionales.
 
-**Sintaxis:**
-
-```graphql
-professionalsCount(filter: ProfessionalFilter): Int!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -405,12 +346,6 @@ query CountActiveProfessionals {
 ### 10. professionalInfo
 
 Obtiene información específica de un profesional para reportes.
-
-**Sintaxis:**
-
-```graphql
-professionalInfo(cedula: String!): ProfessionalInfo
-```
 
 **Ejemplo de uso:**
 
@@ -427,12 +362,6 @@ query GetProfessionalReport {
 ### 11. searchProfessionals
 
 Busca profesionales por texto en múltiples campos.
-
-**Sintaxis:**
-
-```graphql
-searchProfessionals(searchText: String!): [Professional!]!
-```
 
 **Ejemplo de uso:**
 
@@ -463,12 +392,6 @@ query SearchProfessionals {
 
 Obtiene profesionales por rango de edad.
 
-**Sintaxis:**
-
-```graphql
-professionalsByAgeRange(minAge: Int!, maxAge: Int!): [Professional!]!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -498,28 +421,6 @@ query GetYoungProfessionals {
 ### 1. createProfessional
 
 Crea un nuevo profesional (perfil básico únicamente).
-
-**Sintaxis:**
-
-```graphql
-createProfessional(input: ProfessionalInput!): Professional!
-```
-
-**Input:**
-
-```graphql
-input ProfessionalInput {
-  cedula: String!
-  firstName: String!
-  lastName: String!
-  email: String!
-  phone: String!
-  canton: Canton!
-  address: String!
-  birthDate: String!
-  gender: Gender!
-}
-```
 
 **Ejemplo de uso:**
 
@@ -554,29 +455,6 @@ mutation CreateProfessional {
 
 Actualiza información básica de un profesional existente.
 
-**Sintaxis:**
-
-```graphql
-updateProfessional(id: ID!, input: ProfessionalUpdateInput!): Professional!
-```
-
-**Input:**
-
-```graphql
-input ProfessionalUpdateInput {
-  cedula: String
-  firstName: String
-  lastName: String
-  email: String
-  phone: String
-  canton: Canton
-  address: String
-  birthDate: String
-  gender: Gender
-  isActive: Boolean
-}
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -605,12 +483,6 @@ mutation UpdateProfessional {
 
 Elimina un profesional (soft delete - marca como inactivo).
 
-**Sintaxis:**
-
-```graphql
-deleteProfessional(id: ID!): Boolean!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -622,12 +494,6 @@ mutation DeleteProfessional {
 ### 4. toggleProfessionalStatus
 
 Cambia el estado activo/inactivo de un profesional.
-
-**Sintaxis:**
-
-```graphql
-toggleProfessionalStatus(id: ID!): Professional!
-```
 
 **Ejemplo de uso:**
 
@@ -645,17 +511,6 @@ mutation ToggleProfessionalStatus {
 ### 5. updateProfessionalContact
 
 Actualiza información de contacto específica del profesional.
-
-**Sintaxis:**
-
-```graphql
-updateProfessionalContact(
-  id: ID!
-  email: String
-  phone: String
-  address: String
-): Professional!
-```
 
 **Ejemplo de uso:**
 
@@ -681,12 +536,6 @@ mutation UpdateProfessionalContact {
 
 Marca el perfil profesional como completado.
 
-**Sintaxis:**
-
-```graphql
-completeProfile(id: ID!): Professional!
-```
-
 **Ejemplo de uso:**
 
 ```graphql
@@ -703,12 +552,6 @@ mutation CompleteProfile {
 ### 7. validateMonthlyApplicationLimit
 
 Valida el límite mensual de aplicaciones del profesional.
-
-**Sintaxis:**
-
-```graphql
-validateMonthlyApplicationLimit(professionalId: ID!): ApplicationLimitStatus!
-```
 
 **Ejemplo de uso:**
 
@@ -1011,45 +854,6 @@ mutation UpdateProfessionalContacts {
     fullName
     email
     address
-  }
-}
-```
-
----
-
-## Subscriptions (Para futuras funcionalidades en tiempo real)
-
-### 1. professionalRegistered
-
-Se suscribe a nuevos registros de profesionales.
-
-**Sintaxis:**
-
-```graphql
-subscription NewProfessionals {
-  professionalRegistered {
-    id
-    fullName
-    email
-    canton
-    registrationDate
-  }
-}
-```
-
-### 2. professionalUpdated
-
-Se suscribe a actualizaciones de un profesional específico.
-
-**Sintaxis:**
-
-```graphql
-subscription ProfessionalUpdates($professionalId: ID!) {
-  professionalUpdated(id: $professionalId) {
-    id
-    fullName
-    profileCompleted
-    lastUpdated
   }
 }
 ```
