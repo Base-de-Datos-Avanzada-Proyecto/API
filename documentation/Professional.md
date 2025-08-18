@@ -103,7 +103,7 @@ query GetActiveProfessionals {
   professionals(
     filter: {
       isActive: true
-      canton: Puntarenas
+      canton: Esparza
       gender: Male
       ageMin: 25
       ageMax: 45
@@ -141,7 +141,7 @@ Obtiene un profesional específico por ID.
 
 ```graphql
 query GetProfessional {
-  professional(id: "64a7b8c9d0e1f2345678901a") {
+  professional(id: "68a24a524e9922180b1aa269") {
     id
     cedula
     fullName
@@ -170,7 +170,7 @@ query GetProfessional {
     professions {
       professionId {
         name
-        area
+        category
       }
       experienceYears
       proficiencyLevel
@@ -197,7 +197,7 @@ Busca un profesional por su número de cédula.
 
 ```graphql
 query GetProfessionalByCedula {
-  professionalByCedula(cedula: "117890123") {
+  professionalByCedula(cedula: "1-1234-5678") {
     id
     fullName
     email
@@ -250,7 +250,7 @@ Obtiene profesionales que tienen una profesión específica (a través del curr�
 
 ```graphql
 query GetProfessionalsByProfession {
-  professionalsByProfession(professionId: "64a7b8c9d0e1f2345678901c") {
+  professionalsByProfession(professionId: "68a24a524e9922180b1aa259") {
     id
     fullName
     email
@@ -278,7 +278,7 @@ Obtiene profesionales filtrados por género.
 **Ejemplo de uso:**
 
 ```graphql
-query GetFemaleProfeesionals {
+query GetFemaleProfesionals {
   professionalsByGender(gender: Female) {
     id
     fullName
@@ -314,7 +314,7 @@ query GetGenderStatistics {
 
 ### 8. professionalProfessionStats
 
-Obtiene estadísticas de profesionales por área profesional.
+Obtiene estadísticas de profesionales por categoria profesional.
 
 **Ejemplo de uso:**
 
@@ -323,7 +323,7 @@ query GetProfessionStatistics {
   professionalProfessionStats {
     profession {
       name
-      area
+      category
     }
     count
     percentage
@@ -351,7 +351,7 @@ Obtiene información específica de un profesional para reportes.
 
 ```graphql
 query GetProfessionalReport {
-  professionalInfo(cedula: "117890123") {
+  professionalInfo(cedula: "2-2345-6789") {
     cedula
     name
     professions
@@ -359,36 +359,7 @@ query GetProfessionalReport {
 }
 ```
 
-### 11. searchProfessionals
-
-Busca profesionales por texto en múltiples campos.
-
-**Ejemplo de uso:**
-
-```graphql
-query SearchProfessionals {
-  searchProfessionals(searchText: "juan desarrollador") {
-    id
-    fullName
-    email
-    phone
-    canton
-
-    professions {
-      professionId {
-        name
-      }
-    }
-
-    curriculum {
-      summary
-      totalWorkExperience
-    }
-  }
-}
-```
-
-### 12. professionalsByAgeRange
+### 11. professionalsByAgeRange
 
 Obtiene profesionales por rango de edad.
 
@@ -428,15 +399,15 @@ Crea un nuevo profesional (perfil básico únicamente).
 mutation CreateProfessional {
   createProfessional(
     input: {
-      cedula: "117890123"
-      firstName: "María"
-      lastName: "González"
-      email: "maria.gonzalez@email.com"
-      phone: "87654321"
+      cedula: "6-6345-1349"
+      firstName: "Joan"
+      lastName: "Parra"
+      email: "joan.parra@email.com"
+      phone: "6565-2221"
       canton: Puntarenas
       address: "Barrio El Carmen, Puntarenas"
       birthDate: "1990-05-15"
-      gender: Female
+      gender: Male
     }
   ) {
     id
@@ -460,10 +431,9 @@ Actualiza información básica de un profesional existente.
 ```graphql
 mutation UpdateProfessional {
   updateProfessional(
-    id: "64a7b8c9d0e1f2345678901a"
+    id: "68a3975ed61be21a7fd3f39f"
     input: {
-      phone: "87651234"
-      email: "maria.nuevo@email.com"
+      email: "joan.nuevo@email.com"
       address: "Nueva dirección en Puntarenas"
       canton: Esparza
     }
@@ -517,9 +487,9 @@ Actualiza información de contacto específica del profesional.
 ```graphql
 mutation UpdateProfessionalContact {
   updateProfessionalContact(
-    id: "64a7b8c9d0e1f2345678901a"
+    id: "68a3975ed61be21a7fd3f39f"
     email: "nuevo.email@correo.com"
-    phone: "89123456"
+    phone: "8912-3456"
     address: "Nueva dirección profesional"
   ) {
     id
@@ -540,7 +510,7 @@ Marca el perfil profesional como completado.
 
 ```graphql
 mutation CompleteProfile {
-  completeProfile(id: "64a7b8c9d0e1f2345678901a") {
+  completeProfile(id: "68a3975ed61be21a7fd3f39f") {
     id
     fullName
     profileCompleted
@@ -575,11 +545,11 @@ mutation ValidateApplicationLimit {
 mutation RegisterProfessional {
   createProfessional(
     input: {
-      cedula: "205340789"
+      cedula: "2-0534-0789"
       firstName: "Carlos"
       lastName: "Mendoza"
       email: "carlos.mendoza@email.com"
-      phone: "87654321"
+      phone: "8765-4321"
       canton: Esparza
       address: "Centro de Esparza, 200m norte del parque"
       birthDate: "1988-03-20"
@@ -631,7 +601,7 @@ query AdvancedProfessionalSearch {
     professions {
       professionId {
         name
-        area
+        category
       }
       experienceYears
       proficiencyLevel
@@ -663,7 +633,7 @@ query ProfessionalAdminDashboard {
   professionalProfessionStats {
     profession {
       name
-      area
+      category
     }
     count
     percentage
@@ -672,7 +642,6 @@ query ProfessionalAdminDashboard {
   # Conteos totales
   totalProfessionals: professionalsCount
   activeProfessionals: professionalsCount(filter: { isActive: true })
-  completedProfiles: professionalsCount(filter: { profileCompleted: true })
 
   # Profesionales recientes
   recentProfessionals: professionals(
@@ -686,174 +655,6 @@ query ProfessionalAdminDashboard {
     registrationDate
     profileCompleted
     hasCurriculum
-  }
-}
-```
-
-### 4. Panel de profesional individual
-
-```graphql
-query ProfessionalProfile($professionalId: ID!) {
-  professional(id: $professionalId) {
-    id
-    cedula
-    fullName
-    email
-    phone
-    canton
-    address
-    age
-    gender
-    isActive
-    profileCompleted
-    registrationDate
-    lastUpdated
-
-    curriculum {
-      id
-      summary
-      objectives
-      isComplete
-      isPublic
-      totalWorkExperience
-      highestEducation
-      version
-      lastReviewed
-
-      professions {
-        professionId {
-          name
-          area
-        }
-        experienceYears
-        proficiencyLevel
-      }
-
-      education {
-        institution
-        degree
-        educationLevel
-        isCompleted
-      }
-
-      skills {
-        name
-        category
-        proficiencyLevel
-      }
-    }
-
-    monthlyApplicationsCount
-
-    applications {
-      id
-      jobOfferId
-      status
-      applicationDate
-
-      # TODO: Implementar cuando esté disponible JobOffer
-      # jobOffer {
-      #   title
-      #   company
-      # }
-    }
-  }
-
-  # Validación de límite mensual
-  validateMonthlyApplicationLimit(professionalId: $professionalId) {
-    canApply
-    remaining
-    used
-  }
-}
-```
-
-### 5. Búsqueda de talento para empleadores
-
-```graphql
-query TalentSearch($professionId: ID!, $canton: Canton) {
-  professionalsByProfession(professionId: $professionId) {
-    id
-    fullName
-    email
-    phone
-    canton
-    age
-    profileCompleted
-
-    curriculum {
-      summary
-      totalWorkExperience
-      highestEducation
-      isPublic
-
-      skills {
-        name
-        category
-        proficiencyLevel
-        yearsOfExperience
-      }
-
-      workExperience {
-        company
-        position
-        isCurrentJob
-        description
-      }
-
-      education {
-        institution
-        degree
-        educationLevel
-      }
-    }
-
-    professions {
-      experienceYears
-      proficiencyLevel
-    }
-  }
-
-  # Filtrar por cantón si se especifica
-  professionalsByCanton(canton: $canton) {
-    id
-    fullName
-    hasCurriculum
-
-    curriculum {
-      summary
-      isPublic
-    }
-  }
-}
-```
-
-### 6. Actualización masiva de contactos
-
-```graphql
-mutation UpdateProfessionalContacts {
-  # Actualizar contacto del profesional 1
-  updateContact1: updateProfessionalContact(
-    id: "64a7b8c9d0e1f2345678901a"
-    email: "nuevo1@email.com"
-    phone: "87651234"
-  ) {
-    id
-    fullName
-    email
-    phone
-  }
-
-  # Actualizar contacto del profesional 2
-  updateContact2: updateProfessionalContact(
-    id: "64a7b8c9d0e1f2345678901b"
-    email: "nuevo2@email.com"
-    address: "Nueva dirección"
-  ) {
-    id
-    fullName
-    email
-    address
   }
 }
 ```
