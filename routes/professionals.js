@@ -3,7 +3,7 @@
  * ITI-821 Advanced Database Course
  * 
  * REST API routes for professional registration and management
- * Supports both individual and bulk registration operations
+ * Updated to work with simplified Professional model and Curriculum model
  */
 
 const express = require('express');
@@ -12,6 +12,7 @@ const csv = require('csv-parser');
 const fs = require('fs');
 const path = require('path');
 const Professional = require('../models/Professional');
+const Curriculum = require('../models/Curriculum');
 const Profession = require('../models/Profession');
 const { validateProfessional, validateBulkUpload } = require('../middleware/validation');
 
@@ -46,21 +47,45 @@ router.get('/', async (req, res) => {
     const filter = { isActive: true };
     if (canton) filter.canton = canton;
     if (gender) filter.gender = gender;
+    
+    let professionalIds = null;
+    
+    // Filter by profession through curriculum
     if (profession) {
       const professionDoc = await Profession.findOne({ 
         $or: [{ name: new RegExp(profession, 'i') }, { code: profession.toUpperCase() }]
       });
+      
       if (professionDoc) {
-        filter['professions.professionId'] = professionDoc._id;
+        const curricula = await Curriculum.find({
+          'professions.professionId': professionDoc._id
+        }).select('professionalId');
+        
+        professionalIds = curricula.map(c => c.professionalId);
+        if (professionalIds.length > 0) {
+          filter._id = { $in: professionalIds };
+        } else {
+          // No professionals found with this profession
+          return res.json({
+            success: true,
+            data: [],
+            pagination: {
+              currentPage: parseInt(page),
+              totalPages: 0,
+              totalRecords: 0,
+              hasNext: false,
+              hasPrev: false
+            }
+          });
+        }
       }
     }
     
     // Calculate pagination
     const skip = (parseInt(page) - 1) * parseInt(limit);
     
-    // Execute query with population
+    // Execute query
     const professionals = await Professional.find(filter)
-      .populate('professions.professionId', 'name code category')
       .sort({ registrationDate: -1 })
       .skip(skip)
       .limit(parseInt(limit));
@@ -97,8 +122,7 @@ router.get('/', async (req, res) => {
  */
 router.get('/:id', async (req, res) => {
   try {
-    const professional = await Professional.findById(req.params.id)
-      .populate('professions.professionId', 'name code category description');
+    const professional = await Professional.findById(req.params.id);
     
     if (!professional) {
       return res.status(404).json({
@@ -107,9 +131,15 @@ router.get('/:id', async (req, res) => {
       });
     }
     
+    // Get curriculum if exists
+    const curriculum = await professional.getCurriculum();
+    
     res.json({
       success: true,
-      data: professional
+      data: {
+        ...professional.toObject(),
+        curriculum: curriculum
+      }
     });
     
   } catch (error) {
@@ -129,8 +159,7 @@ router.get('/:id', async (req, res) => {
  */
 router.get('/cedula/:cedula', async (req, res) => {
   try {
-    const professional = await Professional.findOne({ cedula: req.params.cedula })
-      .populate('professions.professionId', 'name code category description');
+    const professional = await Professional.findOne({ cedula: req.params.cedula });
     
     if (!professional) {
       return res.status(404).json({
@@ -139,9 +168,15 @@ router.get('/cedula/:cedula', async (req, res) => {
       });
     }
     
+    // Get curriculum if exists
+    const curriculum = await professional.getCurriculum();
+    
     res.json({
       success: true,
-      data: professional
+      data: {
+        ...professional.toObject(),
+        curriculum: curriculum
+      }
     });
     
   } catch (error) {
@@ -156,14 +191,14 @@ router.get('/cedula/:cedula', async (req, res) => {
 
 /**
  * @route   POST /api/professionals
- * @desc    Register a new professional
+ * @desc    Register a new professional (basic profile only)
  * @access  Public
  */
 router.post('/', validateProfessional, async (req, res) => {
   try {
     const {
       cedula, firstName, lastName, email, phone, canton, address,
-      birthDate, gender, professionIds
+      birthDate, gender
     } = req.body;
     
     // Check if professional already exists
@@ -178,20 +213,7 @@ router.post('/', validateProfessional, async (req, res) => {
       });
     }
     
-    // Validate profession IDs exist
-    const validProfessions = await Profession.find({
-      _id: { $in: professionIds },
-      isActive: true
-    });
-    
-    if (validProfessions.length !== professionIds.length) {
-      return res.status(400).json({
-        success: false,
-        message: 'One or more profession IDs are invalid'
-      });
-    }
-    
-    // Create professional document
+    // Create professional document (basic profile only)
     const professional = new Professional({
       cedula,
       firstName,
@@ -201,17 +223,10 @@ router.post('/', validateProfessional, async (req, res) => {
       canton,
       address,
       birthDate: new Date(birthDate),
-      gender,
-      professions: professionIds.map(id => ({
-        professionId: id,
-        registrationDate: new Date()
-      }))
+      gender
     });
     
     await professional.save();
-    
-    // Populate profession data for response
-    await professional.populate('professions.professionId');
     
     res.status(201).json({
       success: true,
@@ -254,7 +269,7 @@ router.put('/:id', validateProfessional, async (req, res) => {
       });
     }
     
-    // Update fields
+    // Update basic fields only
     const updatableFields = [
       'firstName', 'lastName', 'email', 'phone', 'canton', 
       'address', 'birthDate', 'gender'
@@ -266,28 +281,7 @@ router.put('/:id', validateProfessional, async (req, res) => {
       }
     });
     
-    // Handle profession updates if provided
-    if (req.body.professionIds) {
-      const validProfessions = await Profession.find({
-        _id: { $in: req.body.professionIds },
-        isActive: true
-      });
-      
-      if (validProfessions.length !== req.body.professionIds.length) {
-        return res.status(400).json({
-          success: false,
-          message: 'One or more profession IDs are invalid'
-        });
-      }
-      
-      professional.professions = req.body.professionIds.map(id => ({
-        professionId: id,
-        registrationDate: new Date()
-      }));
-    }
-    
     await professional.save();
-    await professional.populate('professions.professionId');
     
     res.json({
       success: true,
@@ -306,8 +300,43 @@ router.put('/:id', validateProfessional, async (req, res) => {
 });
 
 /**
+ * @route   DELETE /api/professionals/:id
+ * @desc    Soft delete professional (set isActive to false)
+ * @access  Public
+ */
+router.delete('/:id', async (req, res) => {
+  try {
+    const professional = await Professional.findByIdAndUpdate(
+      req.params.id,
+      { isActive: false, lastUpdated: new Date() },
+      { new: true }
+    );
+    
+    if (!professional) {
+      return res.status(404).json({
+        success: false,
+        message: 'Professional not found'
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: 'Professional deactivated successfully'
+    });
+    
+  } catch (error) {
+    console.error('Error deactivating professional:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error deactivating professional',
+      error: error.message
+    });
+  }
+});
+
+/**
  * @route   POST /api/professionals/bulk-upload
- * @desc    Bulk upload professionals from CSV or JSON file
+ * @desc    Bulk upload professionals from CSV or JSON file (basic profiles only)
  * @access  Public
  */
 router.post('/bulk-upload', upload.single('file'), validateBulkUpload, async (req, res) => {
@@ -372,38 +401,7 @@ router.post('/bulk-upload', upload.single('file'), validateBulkUpload, async (re
           continue;
         }
         
-        // Process profession names/codes to IDs
-        let professionIds = [];
-        if (professionalData.professions) {
-          const professionNames = Array.isArray(professionalData.professions) 
-            ? professionalData.professions 
-            : professionalData.professions.split(',').map(p => p.trim());
-          
-          for (const profName of professionNames) {
-            const profession = await Profession.findOne({
-              $or: [
-                { name: new RegExp(`^${profName}$`, 'i') },
-                { code: profName.toUpperCase() }
-              ],
-              isActive: true
-            });
-            
-            if (profession) {
-              professionIds.push(profession._id);
-            }
-          }
-        }
-        
-        if (professionIds.length === 0) {
-          results.failed++;
-          results.errors.push({
-            row: i + 1,
-            error: 'No valid professions found'
-          });
-          continue;
-        }
-        
-        // Create professional
+        // Create professional (basic profile only)
         const professional = new Professional({
           cedula: professionalData.cedula,
           firstName: professionalData.firstName,
@@ -413,11 +411,7 @@ router.post('/bulk-upload', upload.single('file'), validateBulkUpload, async (re
           canton: professionalData.canton,
           address: professionalData.address,
           birthDate: new Date(professionalData.birthDate),
-          gender: professionalData.gender,
-          professions: professionIds.map(id => ({
-            professionId: id,
-            registrationDate: new Date()
-          }))
+          gender: professionalData.gender
         });
         
         await professional.save();
@@ -482,8 +476,32 @@ router.get('/stats/by-gender', async (req, res) => {
 });
 
 /**
+ * @route   GET /api/professionals/stats/general
+ * @desc    Get general professional statistics
+ * @access  Public
+ */
+router.get('/stats/general', async (req, res) => {
+  try {
+    const stats = await Professional.getStats();
+    
+    res.json({
+      success: true,
+      data: stats
+    });
+    
+  } catch (error) {
+    console.error('Error getting general stats:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error getting statistics',
+      error: error.message
+    });
+  }
+});
+
+/**
  * @route   GET /api/professionals/by-profession/:professionId
- * @desc    Get professionals by profession
+ * @desc    Get professionals by profession (through curriculum)
  * @access  Public
  */
 router.get('/by-profession/:professionId', async (req, res) => {
@@ -506,6 +524,205 @@ router.get('/by-profession/:professionId', async (req, res) => {
 });
 
 /**
+ * @route   GET /api/professionals/by-canton/:canton
+ * @desc    Get professionals by canton
+ * @access  Public
+ */
+router.get('/by-canton/:canton', async (req, res) => {
+  try {
+    const professionals = await Professional.findByCanton(req.params.canton);
+    
+    res.json({
+      success: true,
+      data: professionals
+    });
+    
+  } catch (error) {
+    console.error('Error getting professionals by canton:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching professionals',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * @route   GET /api/professionals/search/:searchText
+ * @desc    Search professionals by text
+ * @access  Public
+ */
+router.get('/search/:searchText', async (req, res) => {
+  try {
+    const searchText = req.params.searchText;
+    const searchRegex = new RegExp(searchText, 'i');
+    
+    const professionals = await Professional.find({
+      isActive: true,
+      $or: [
+        { firstName: searchRegex },
+        { lastName: searchRegex },
+        { email: searchRegex },
+        { cedula: searchRegex }
+      ]
+    }).sort({ firstName: 1, lastName: 1 });
+    
+    res.json({
+      success: true,
+      data: professionals
+    });
+    
+  } catch (error) {
+    console.error('Error searching professionals:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error searching professionals',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * @route   PUT /api/professionals/:id/complete-profile
+ * @desc    Mark professional profile as completed
+ * @access  Public
+ */
+router.put('/:id/complete-profile', async (req, res) => {
+  try {
+    const professional = await Professional.findById(req.params.id);
+    
+    if (!professional) {
+      return res.status(404).json({
+        success: false,
+        message: 'Professional not found'
+      });
+    }
+    
+    const updatedProfessional = await professional.completeProfile();
+    
+    res.json({
+      success: true,
+      message: 'Profile marked as completed',
+      data: updatedProfessional
+    });
+    
+  } catch (error) {
+    console.error('Error completing profile:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error completing profile',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * @route   GET /api/professionals/:id/application-limit
+ * @desc    Check professional's monthly application limit
+ * @access  Public
+ */
+router.get('/:id/application-limit', async (req, res) => {
+  try {
+    const professional = await Professional.findById(req.params.id);
+    
+    if (!professional) {
+      return res.status(404).json({
+        success: false,
+        message: 'Professional not found'
+      });
+    }
+    
+    const limitStatus = await professional.canApplyToMoreJobs();
+    
+    res.json({
+      success: true,
+      data: limitStatus
+    });
+    
+  } catch (error) {
+    console.error('Error checking application limit:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error checking application limit',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * @route   GET /api/professionals/:id/curriculum
+ * @desc    Get professional's curriculum
+ * @access  Public
+ */
+router.get('/:id/curriculum', async (req, res) => {
+  try {
+    const professional = await Professional.findById(req.params.id);
+    
+    if (!professional) {
+      return res.status(404).json({
+        success: false,
+        message: 'Professional not found'
+      });
+    }
+    
+    const curriculum = await professional.getCurriculum();
+    
+    if (!curriculum) {
+      return res.status(404).json({
+        success: false,
+        message: 'Curriculum not found for this professional'
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: curriculum
+    });
+    
+  } catch (error) {
+    console.error('Error fetching curriculum:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching curriculum',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * @route   GET /api/professionals/:id/professions
+ * @desc    Get professional's professions through curriculum
+ * @access  Public
+ */
+router.get('/:id/professions', async (req, res) => {
+  try {
+    const professional = await Professional.findById(req.params.id);
+    
+    if (!professional) {
+      return res.status(404).json({
+        success: false,
+        message: 'Professional not found'
+      });
+    }
+    
+    const professions = await professional.getProfessions();
+    
+    res.json({
+      success: true,
+      data: professions
+    });
+    
+  } catch (error) {
+    console.error('Error fetching professions:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching professions',
+      error: error.message
+    });
+  }
+});
+
+/**
  * Helper function to process CSV file
  * @param {string} filePath - Path to the CSV file
  * @returns {Promise<Array>} Array of professional objects
@@ -517,7 +734,7 @@ function processCsvFile(filePath) {
     fs.createReadStream(filePath)
       .pipe(csv())
       .on('data', (row) => {
-        // Convert CSV row to professional object
+        // Convert CSV row to professional object (basic fields only)
         const professional = {
           cedula: row.cedula || row.Cedula,
           firstName: row.firstName || row.FirstName || row.first_name,
@@ -527,8 +744,7 @@ function processCsvFile(filePath) {
           canton: row.canton || row.Canton,
           address: row.address || row.Address,
           birthDate: row.birthDate || row.BirthDate || row.birth_date,
-          gender: row.gender || row.Gender,
-          professions: row.professions || row.Professions
+          gender: row.gender || row.Gender
         };
         
         results.push(professional);

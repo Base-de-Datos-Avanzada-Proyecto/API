@@ -371,12 +371,13 @@ employerSchema.pre('validate', function(next) {
       this.invalidate('identification', 'Cédula must follow format: X-XXXX-XXXX');
     }
   } else if (this.employerType === 'juridica') {
-    // Validate legal entity identification (cédula jurídica)
-    const juridicaRegex = /^\d{3}-?\d{6}-?\d{4}$/;
+    // Validate legal entity identification (cédula jurídica CR)
+    const juridicaRegex = /^[2-8]-\d{3}-\d{6}$/;
     if (!juridicaRegex.test(this.identification)) {
-      this.invalidate('identification', 'Legal entity identification must follow format: XXX-XXXXXX-XXXX');
+      this.invalidate('identification', 'Legal entity identification must follow Costa Rican format: X-XXX-XXXXXX');
     }
   }
+
   
   next();
 });

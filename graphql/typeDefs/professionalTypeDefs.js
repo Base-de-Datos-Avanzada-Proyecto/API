@@ -3,12 +3,13 @@
  * ITI-821 Advanced Database Course
  * 
  * Defines GraphQL schema for professional operations
+ * Updated to work with simplified Professional model and Curriculum model
  */
 
 const { gql } = require('apollo-server-express');
 
 const professionalTypeDefs = gql`
-  # Professional type definition
+  # Professional type definition (simplified - basic profile only)
   type Professional {
     id: ID!
     cedula: String!
@@ -20,8 +21,8 @@ const professionalTypeDefs = gql`
     address: String!
     birthDate: String!
     gender: Gender!
-    professions: [ProfessionalProfession!]!
     isActive: Boolean!
+    profileCompleted: Boolean!
     registrationDate: String!
     lastUpdated: String!
     createdAt: String!
@@ -31,24 +32,15 @@ const professionalTypeDefs = gql`
     fullName: String!
     age: Int
     
-    # Related data
-    activeProfessions: [Profession!]!
-    applications: [JobApplication!]!
+    # Related data through methods
+    curriculum: Curriculum
+    professions: [CurriculumProfession!]!
+    hasCurriculum: Boolean!
     monthlyApplicationsCount: Int!
+    applications: [JobApplication!]!
   }
 
-  # Professional profession association
-  type ProfessionalProfession {
-    professionId: Profession!
-    registrationDate: String!
-  }
-
-  # Input for professional profession association
-  input ProfessionalProfessionInput {
-    professionId: ID!
-  }
-
-  # Input types for creating and updating professionals
+  # Input types for creating and updating professionals (basic info only)
   input ProfessionalInput {
     cedula: String!
     firstName: String!
@@ -59,7 +51,6 @@ const professionalTypeDefs = gql`
     address: String!
     birthDate: String!
     gender: Gender!
-    professions: [ProfessionalProfessionInput!]!
   }
 
   input ProfessionalUpdateInput {
@@ -98,6 +89,12 @@ const professionalTypeDefs = gql`
     cedula: String!
     name: String!
     professions: [String!]!
+  }
+
+  type ApplicationLimitStatus {
+    canApply: Boolean!
+    remaining: Int!
+    used: Int!
   }
 
   # Filter and search inputs
@@ -166,7 +163,7 @@ const professionalTypeDefs = gql`
     # Get professionals by canton
     professionalsByCanton(canton: Canton!): [Professional!]!
 
-    # Get professionals by profession
+    # Get professionals by profession (through curriculum)
     professionalsByProfession(professionId: ID!): [Professional!]!
 
     # Get professionals by gender
@@ -193,26 +190,17 @@ const professionalTypeDefs = gql`
 
   # Mutations
   type Mutation {
-    # Create new professional
+    # Create new professional (basic profile only)
     createProfessional(input: ProfessionalInput!): Professional!
 
-    # Update professional
+    # Update professional basic information
     updateProfessional(id: ID!, input: ProfessionalUpdateInput!): Professional!
 
     # Delete professional (soft delete - set isActive to false)
     deleteProfessional(id: ID!): Boolean!
 
-    # Add profession to professional
-    addProfessionToProfessional(professionalId: ID!, professionId: ID!): Professional!
-
-    # Remove profession from professional
-    removeProfessionFromProfessional(professionalId: ID!, professionId: ID!): Professional!
-
     # Toggle professional active status
     toggleProfessionalStatus(id: ID!): Professional!
-
-    # Bulk create professionals (for massive data loading)
-    createProfessionals(input: [ProfessionalInput!]!): [Professional!]!
 
     # Update professional contact information
     updateProfessionalContact(
@@ -222,8 +210,11 @@ const professionalTypeDefs = gql`
       address: String
     ): Professional!
 
+    # Mark professional profile as completed
+    completeProfile(id: ID!): Professional!
+
     # Validate professional monthly application limit
-    validateMonthlyApplicationLimit(professionalId: ID!): Boolean!
+    validateMonthlyApplicationLimit(professionalId: ID!): ApplicationLimitStatus!
   }
 
   # Subscriptions (for future real-time features)

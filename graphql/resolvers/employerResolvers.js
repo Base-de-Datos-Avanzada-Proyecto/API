@@ -239,7 +239,8 @@ const employerResolvers = {
             { legalName: searchRegex },
             { email: searchRegex },
             { identification: searchRegex },
-            { businessSector: searchRegex }
+            { businessSector: searchRegex },
+            { description: searchRegex }
           ]
         })
         .populate('preferredProfessions')

@@ -1,16 +1,16 @@
 /**
- * Professional Model
+ * Professional Model - Simplified Version
  * ITI-821 Advanced Database Course
  * 
- * Defines the schema for professional users who register
- * to offer their services in different areas
+ * Defines basic personal information for professional users
+ * Professional areas and detailed experience now handled by Curriculum model
  */
 
 const mongoose = require('mongoose');
 
 /**
  * Professional Schema Definition
- * Stores personal information and professional areas of interest
+ * Stores only essential personal and contact information
  */
 const professionalSchema = new mongoose.Schema({
   // Personal identification
@@ -95,25 +95,19 @@ const professionalSchema = new mongoose.Schema({
     }
   },
   
-  // Professional areas (multiple professions allowed)
-  professions: [{
-    professionId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Profession',
-      required: true
-    },
-    registrationDate: {
-      type: Date,
-      default: Date.now
-    }
-  }],
-  
-  // Registration metadata
+  // Account status
   isActive: {
     type: Boolean,
     default: true
   },
   
+  // Profile completion status
+  profileCompleted: {
+    type: Boolean,
+    default: false
+  },
+  
+  // Registration metadata
   registrationDate: {
     type: Date,
     default: Date.now
@@ -125,7 +119,7 @@ const professionalSchema = new mongoose.Schema({
   }
 }, {
   // Schema options
-  timestamps: true, // Automatically add createdAt and updatedAt
+  timestamps: true,
   collection: 'professionals'
 });
 
@@ -136,7 +130,6 @@ professionalSchema.index({ cedula: 1 }, { unique: true });
 professionalSchema.index({ email: 1 }, { unique: true });
 professionalSchema.index({ canton: 1 });
 professionalSchema.index({ gender: 1 });
-professionalSchema.index({ 'professions.professionId': 1 });
 professionalSchema.index({ isActive: 1 });
 
 /**
@@ -165,44 +158,68 @@ professionalSchema.virtual('age').get(function() {
  */
 
 /**
- * Add a profession to the professional's areas
- * @param {ObjectId} professionId - ID of the profession to add
- * @returns {Promise<Professional>} Updated professional document
+ * Get professional's curriculum
+ * @returns {Promise<Curriculum>} Professional's curriculum document
  */
-professionalSchema.methods.addProfession = async function(professionId) {
-  // Check if profession already exists
-  const exists = this.professions.some(p => p.professionId.toString() === professionId.toString());
-  
-  if (!exists) {
-    this.professions.push({
-      professionId: professionId,
-      registrationDate: new Date()
-    });
-    this.lastUpdated = new Date();
-    return await this.save();
-  }
-  
-  return this;
+professionalSchema.methods.getCurriculum = async function() {
+  const Curriculum = mongoose.model('Curriculum');
+  return await Curriculum.findOne({ professionalId: this._id });
 };
 
 /**
- * Remove a profession from the professional's areas
- * @param {ObjectId} professionId - ID of the profession to remove
+ * Check if professional has a curriculum
+ * @returns {Promise<boolean>} Whether curriculum exists
+ */
+professionalSchema.methods.hasCurriculum = async function() {
+  const Curriculum = mongoose.model('Curriculum');
+  const curriculum = await Curriculum.findOne({ professionalId: this._id });
+  return !!curriculum;
+};
+
+/**
+ * Get professional's active professions through curriculum
+ * @returns {Promise<Array>} Array of professions from curriculum
+ */
+professionalSchema.methods.getProfessions = async function() {
+  const Curriculum = mongoose.model('Curriculum');
+  const curriculum = await Curriculum.findOne({ professionalId: this._id })
+    .populate('professions.professionId');
+  
+  return curriculum ? curriculum.professions : [];
+};
+
+/**
+ * Get monthly application count for this professional
+ * @returns {Promise<number>} Count of applications this month
+ */
+professionalSchema.methods.getMonthlyApplicationCount = async function() {
+  const Application = mongoose.model('Application');
+  return await Application.getMonthlyCount(this._id);
+};
+
+/**
+ * Check if professional can apply to more jobs this month
+ * @returns {Promise<Object>} Object with canApply boolean and remaining count
+ */
+professionalSchema.methods.canApplyToMoreJobs = async function() {
+  const monthlyCount = await this.getMonthlyApplicationCount();
+  const remaining = Math.max(0, 3 - monthlyCount);
+  
+  return {
+    canApply: remaining > 0,
+    remaining: remaining,
+    used: monthlyCount
+  };
+};
+
+/**
+ * Mark profile as completed
  * @returns {Promise<Professional>} Updated professional document
  */
-professionalSchema.methods.removeProfession = async function(professionId) {
-  this.professions = this.professions.filter(p => p.professionId.toString() !== professionId.toString());
+professionalSchema.methods.completeProfile = async function() {
+  this.profileCompleted = true;
   this.lastUpdated = new Date();
   return await this.save();
-};
-
-/**
- * Get professional's active professions with populated data
- * @returns {Promise<Array>} Array of populated professions
- */
-professionalSchema.methods.getActiveProfessions = async function() {
-  await this.populate('professions.professionId');
-  return this.professions.map(p => p.professionId);
 };
 
 /**
@@ -216,22 +233,28 @@ professionalSchema.methods.getActiveProfessions = async function() {
  */
 professionalSchema.statics.findByCanton = function(canton) {
   return this.find({ canton, isActive: true })
-    .populate('professions.professionId')
     .sort({ registrationDate: -1 });
 };
 
 /**
- * Find professionals by profession
+ * Find professionals by profession (through curriculum)
  * @param {ObjectId} professionId - Profession ID
  * @returns {Promise<Array>} Array of professionals in that profession
  */
-professionalSchema.statics.findByProfession = function(professionId) {
-  return this.find({ 
-    'professions.professionId': professionId,
-    isActive: true 
-  })
-  .populate('professions.professionId')
-  .sort({ registrationDate: -1 });
+professionalSchema.statics.findByProfession = async function(professionId) {
+  const Curriculum = mongoose.model('Curriculum');
+  
+  // Find curricula with the specified profession
+  const curricula = await Curriculum.find({
+    'professions.professionId': professionId
+  }).select('professionalId');
+  
+  const professionalIds = curricula.map(c => c.professionalId);
+  
+  return this.find({
+    _id: { $in: professionalIds },
+    isActive: true
+  }).sort({ registrationDate: -1 });
 };
 
 /**
@@ -250,7 +273,47 @@ professionalSchema.statics.getGenderStats = function() {
 };
 
 /**
- * Pre-save middleware to update lastUpdated timestamp
+ * Get professionals with completed profiles
+ * @returns {Promise<Array>} Array of professionals with completed profiles
+ */
+professionalSchema.statics.findWithCompletedProfiles = function() {
+  return this.find({ 
+    isActive: true, 
+    profileCompleted: true 
+  }).sort({ registrationDate: -1 });
+};
+
+/**
+ * Get general statistics
+ * @returns {Promise<Object>} Statistics object
+ */
+professionalSchema.statics.getStats = async function() {
+  const stats = await this.aggregate([
+    {
+      $group: {
+        _id: null,
+        total: { $sum: 1 },
+        active: { $sum: { $cond: ['$isActive', 1, 0] } },
+        completed: { $sum: { $cond: ['$profileCompleted', 1, 0] } },
+        male: { $sum: { $cond: [{ $eq: ['$gender', 'Male'] }, 1, 0] } },
+        female: { $sum: { $cond: [{ $eq: ['$gender', 'Female'] }, 1, 0] } },
+        other: { $sum: { $cond: [{ $eq: ['$gender', 'Other'] }, 1, 0] } }
+      }
+    }
+  ]);
+  
+  return stats[0] || {
+    total: 0,
+    active: 0,
+    completed: 0,
+    male: 0,
+    female: 0,
+    other: 0
+  };
+};
+
+/**
+ * Pre-save middleware
  */
 professionalSchema.pre('save', function(next) {
   if (this.isModified() && !this.isNew) {
@@ -260,15 +323,30 @@ professionalSchema.pre('save', function(next) {
 });
 
 /**
- * Pre-validate middleware for additional custom validations
+ * Post-save middleware to update profession statistics
  */
-professionalSchema.pre('validate', function(next) {
-  // Ensure at least one profession is selected
-  if (this.professions && this.professions.length === 0) {
-    this.invalidate('professions', 'At least one profession must be selected');
+professionalSchema.post('save', async function(doc) {
+  try {
+    // Update profession statistics when a new professional is created
+    if (doc.isNew) {
+      const Curriculum = mongoose.model('Curriculum');
+      const curriculum = await Curriculum.findOne({ professionalId: doc._id });
+      
+      if (curriculum && curriculum.professions) {
+        const Profession = mongoose.model('Profession');
+        
+        // Update statistics for each profession
+        for (const professionData of curriculum.professions) {
+          const profession = await Profession.findById(professionData.professionId);
+          if (profession) {
+            await profession.updateStatistics();
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error updating profession statistics:', error);
   }
-  
-  next();
 });
 
 // Ensure virtual fields are serialized

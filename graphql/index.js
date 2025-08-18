@@ -7,6 +7,7 @@ const employerTypeDefs = require('./typeDefs/employerTypeDefs');
 const professionTypeDefs = require('./typeDefs/professionTypeDefs');
 const jobOfferTypeDefs = require('./typeDefs/jobOfferTypeDefs');
 const applicationTypeDefs  = require('./typeDefs/applicationTypeDefs');
+const curriculumTypeDefs  = require('./typeDefs/curriculumTypeDefs');
 
 // Importar resolvers
 const professionalResolvers = require('./resolvers/professionalResolvers');
@@ -14,6 +15,7 @@ const employerResolvers = require('./resolvers/employerResolvers');
 const professionResolvers = require('./resolvers/professionResolvers');
 const jobOfferResolvers = require('./resolvers/jobOfferResolver');
 const applicationResolvers  = require('./resolvers/applicationResolvers');
+const curriculumResolvers  = require('./resolvers/curriculumResolvers');
 
 // Fusionar typedefs y resolvers
 const typeDefs = mergeTypeDefs([
@@ -21,7 +23,8 @@ const typeDefs = mergeTypeDefs([
   employerTypeDefs,
   professionTypeDefs,
   jobOfferTypeDefs,
-  applicationTypeDefs
+  applicationTypeDefs,
+  curriculumTypeDefs
 ]);
 
 const resolvers = mergeResolvers([
@@ -29,7 +32,8 @@ const resolvers = mergeResolvers([
   employerResolvers,
   professionResolvers,
   jobOfferResolvers,
-  applicationResolvers
+  applicationResolvers,
+  curriculumResolvers
 ]);
 
 module.exports = { typeDefs, resolvers };

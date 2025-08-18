@@ -3,9 +3,11 @@
  * ITI-821 Advanced Database Course
  * 
  * Implements GraphQL resolvers for professional operations
+ * Updated to work with simplified Professional model and Curriculum model
  */
 
 const Professional = require('../../models/Professional');
+const Curriculum = require('../../models/Curriculum');
 const Profession = require('../../models/Profession');
 
 const professionalResolvers = {
@@ -18,16 +20,14 @@ const professionalResolvers = {
      */
     professionals: async (parent, { filter, sort, limit, offset }) => {
       try {
-        let query = {};
+        let query = { isActive: true };
         
         // Apply filters
         if (filter) {
           if (filter.canton) query.canton = filter.canton;
           if (filter.gender) query.gender = filter.gender;
           if (filter.isActive !== undefined) query.isActive = filter.isActive;
-          if (filter.professionId) {
-            query['professions.professionId'] = filter.professionId;
-          }
+          
           if (filter.searchText) {
             const searchRegex = new RegExp(filter.searchText, 'i');
             query.$or = [
@@ -54,10 +54,20 @@ const professionalResolvers = {
               }
             }
           }
+          
+          // Filter by profession through curriculum
+          if (filter.professionId) {
+            const curricula = await Curriculum.find({
+              'professions.professionId': filter.professionId
+            }).select('professionalId');
+            
+            const professionalIds = curricula.map(c => c.professionalId);
+            query._id = { $in: professionalIds };
+          }
         }
         
         // Build query
-        let professionalQuery = Professional.find(query).populate('professions.professionId');
+        let professionalQuery = Professional.find(query);
         
         // Apply sorting
         if (sort) {
@@ -85,7 +95,7 @@ const professionalResolvers = {
      */
     professional: async (parent, { id }) => {
       try {
-        const professional = await Professional.findById(id).populate('professions.professionId');
+        const professional = await Professional.findById(id);
         if (!professional) {
           throw new Error('Professional not found');
         }
@@ -103,7 +113,7 @@ const professionalResolvers = {
      */
     professionalByCedula: async (parent, { cedula }) => {
       try {
-        const professional = await Professional.findOne({ cedula }).populate('professions.professionId');
+        const professional = await Professional.findOne({ cedula });
         if (!professional) {
           throw new Error('Professional not found');
         }
@@ -150,7 +160,6 @@ const professionalResolvers = {
     professionalsByGender: async (parent, { gender }) => {
       try {
         return await Professional.find({ gender, isActive: true })
-          .populate('professions.professionId')
           .sort({ firstName: 1, lastName: 1 });
       } catch (error) {
         throw new Error(`Error fetching professionals by gender: ${error.message}`);
@@ -179,8 +188,8 @@ const professionalResolvers = {
      */
     professionalProfessionStats: async () => {
       try {
-        const stats = await Professional.aggregate([
-          { $match: { isActive: true } },
+        // Get profession statistics through curriculum
+        const stats = await Curriculum.aggregate([
           { $unwind: '$professions' },
           {
             $group: {
@@ -200,20 +209,14 @@ const professionalResolvers = {
           {
             $project: {
               profession: '$profession',
-              count: 1,
-              percentage: {
-                $multiply: [
-                  { $divide: ['$count', { $sum: '$count' }] },
-                  100
-                ]
-              }
+              count: 1
             }
           },
           { $sort: { count: -1 } }
         ]);
         
         // Calculate total for percentage
-        const total = await Professional.countDocuments({ isActive: true });
+        const total = await Curriculum.countDocuments();
         
         return stats.map(stat => ({
           profession: stat.profession,
@@ -233,15 +236,13 @@ const professionalResolvers = {
      */
     professionalsCount: async (parent, { filter }) => {
       try {
-        let query = {};
+        let query = { isActive: true };
         
         if (filter) {
           if (filter.canton) query.canton = filter.canton;
           if (filter.gender) query.gender = filter.gender;
           if (filter.isActive !== undefined) query.isActive = filter.isActive;
-          if (filter.professionId) {
-            query['professions.professionId'] = filter.professionId;
-          }
+          
           if (filter.searchText) {
             const searchRegex = new RegExp(filter.searchText, 'i');
             query.$or = [
@@ -250,6 +251,15 @@ const professionalResolvers = {
               { email: searchRegex },
               { cedula: searchRegex }
             ];
+          }
+          
+          if (filter.professionId) {
+            const curricula = await Curriculum.find({
+              'professions.professionId': filter.professionId
+            }).select('professionalId');
+            
+            const professionalIds = curricula.map(c => c.professionalId);
+            query._id = { $in: professionalIds };
           }
         }
         
@@ -267,17 +277,18 @@ const professionalResolvers = {
      */
     professionalInfo: async (parent, { cedula }) => {
       try {
-        const professional = await Professional.findOne({ cedula })
-          .populate('professions.professionId');
+        const professional = await Professional.findOne({ cedula });
         
         if (!professional) {
           throw new Error('Professional not found');
         }
         
+        const professions = await professional.getProfessions();
+        
         return {
           cedula: professional.cedula,
           name: professional.fullName,
-          professions: professional.professions.map(p => p.professionId.name)
+          professions: professions.map(p => p.professionId.name)
         };
       } catch (error) {
         throw new Error(`Error fetching professional info: ${error.message}`);
@@ -302,7 +313,6 @@ const professionalResolvers = {
             { cedula: searchRegex }
           ]
         })
-        .populate('professions.professionId')
         .sort({ firstName: 1, lastName: 1 });
       } catch (error) {
         throw new Error(`Error searching professionals: ${error.message}`);
@@ -328,7 +338,6 @@ const professionalResolvers = {
             $lte: maxBirthDate
           }
         })
-        .populate('professions.professionId')
         .sort({ birthDate: -1 });
       } catch (error) {
         throw new Error(`Error fetching professionals by age range: ${error.message}`);
@@ -338,38 +347,17 @@ const professionalResolvers = {
 
   Mutation: {
     /**
-     * Create new professional
+     * Create new professional (basic profile only)
      * @param {Object} parent - Parent resolver
      * @param {Object} args - Mutation arguments with input data
      * @returns {Promise<Object>} Created professional document
      */
     createProfessional: async (parent, { input }) => {
       try {
-        // Transform professions input format
-        const professionalData = {
-          ...input,
-          professions: input.professions.map(p => ({
-            professionId: p.professionId,
-            registrationDate: new Date()
-          }))
-        };
-        
-        const professional = new Professional(professionalData);
+        const professional = new Professional(input);
         const savedProfessional = await professional.save();
         
-        // Update profession statistics
-        for (const profession of input.professions) {
-          try {
-            const prof = await Profession.findById(profession.professionId);
-            if (prof) {
-              await prof.updateStatistics();
-            }
-          } catch (error) {
-            console.error('Error updating profession statistics:', error);
-          }
-        }
-        
-        return await Professional.findById(savedProfessional._id).populate('professions.professionId');
+        return savedProfessional;
       } catch (error) {
         if (error.code === 11000) {
           throw new Error('Professional with this cedula or email already exists');
@@ -390,7 +378,7 @@ const professionalResolvers = {
           id,
           { ...input, lastUpdated: new Date() },
           { new: true, runValidators: true }
-        ).populate('professions.professionId');
+        );
         
         if (!professional) {
           throw new Error('Professional not found');
@@ -423,60 +411,6 @@ const professionalResolvers = {
     },
 
     /**
-     * Add profession to professional
-     * @param {Object} parent - Parent resolver
-     * @param {Object} args - Mutation arguments with professional ID and profession ID
-     * @returns {Promise<Object>} Updated professional document
-     */
-    addProfessionToProfessional: async (parent, { professionalId, professionId }) => {
-      try {
-        const professional = await Professional.findById(professionalId);
-        if (!professional) {
-          throw new Error('Professional not found');
-        }
-        
-        const updatedProfessional = await professional.addProfession(professionId);
-        
-        // Update profession statistics
-        const profession = await Profession.findById(professionId);
-        if (profession) {
-          await profession.updateStatistics();
-        }
-        
-        return await Professional.findById(updatedProfessional._id).populate('professions.professionId');
-      } catch (error) {
-        throw new Error(`Error adding profession to professional: ${error.message}`);
-      }
-    },
-
-    /**
-     * Remove profession from professional
-     * @param {Object} parent - Parent resolver
-     * @param {Object} args - Mutation arguments with professional ID and profession ID
-     * @returns {Promise<Object>} Updated professional document
-     */
-    removeProfessionFromProfessional: async (parent, { professionalId, professionId }) => {
-      try {
-        const professional = await Professional.findById(professionalId);
-        if (!professional) {
-          throw new Error('Professional not found');
-        }
-        
-        const updatedProfessional = await professional.removeProfession(professionId);
-        
-        // Update profession statistics
-        const profession = await Profession.findById(professionId);
-        if (profession) {
-          await profession.updateStatistics();
-        }
-        
-        return await Professional.findById(updatedProfessional._id).populate('professions.professionId');
-      } catch (error) {
-        throw new Error(`Error removing profession from professional: ${error.message}`);
-      }
-    },
-
-    /**
      * Toggle professional active status
      * @param {Object} parent - Parent resolver
      * @param {Object} args - Mutation arguments with ID
@@ -492,70 +426,9 @@ const professionalResolvers = {
         professional.isActive = !professional.isActive;
         professional.lastUpdated = new Date();
         
-        const updatedProfessional = await professional.save();
-        return await Professional.findById(updatedProfessional._id).populate('professions.professionId');
+        return await professional.save();
       } catch (error) {
         throw new Error(`Error toggling professional status: ${error.message}`);
-      }
-    },
-
-    /**
-     * Bulk create professionals
-     * @param {Object} parent - Parent resolver
-     * @param {Object} args - Mutation arguments with array of input data
-     * @returns {Promise<Array>} Array of created professional documents
-     */
-    createProfessionals: async (parent, { input }) => {
-      try {
-        const professionals = [];
-        const errors = [];
-        
-        for (const professionalData of input) {
-          try {
-            // Transform professions input format
-            const transformedData = {
-              ...professionalData,
-              professions: professionalData.professions.map(p => ({
-                professionId: p.professionId,
-                registrationDate: new Date()
-              }))
-            };
-            
-            const professional = new Professional(transformedData);
-            const savedProfessional = await professional.save();
-            professionals.push(await Professional.findById(savedProfessional._id).populate('professions.professionId'));
-          } catch (error) {
-            errors.push({
-              data: professionalData,
-              error: error.message
-            });
-          }
-        }
-        
-        // Update profession statistics for all affected professions
-        const professionIds = new Set();
-        professionals.forEach(prof => {
-          prof.professions.forEach(p => professionIds.add(p.professionId._id.toString()));
-        });
-        
-        for (const professionId of professionIds) {
-          try {
-            const profession = await Profession.findById(professionId);
-            if (profession) {
-              await profession.updateStatistics();
-            }
-          } catch (error) {
-            console.error('Error updating profession statistics:', error);
-          }
-        }
-        
-        if (errors.length > 0) {
-          console.log('Bulk creation completed with some errors:', errors);
-        }
-        
-        return professionals;
-      } catch (error) {
-        throw new Error(`Error bulk creating professionals: ${error.message}`);
       }
     },
 
@@ -576,7 +449,7 @@ const professionalResolvers = {
           id,
           updateData,
           { new: true, runValidators: true }
-        ).populate('professions.professionId');
+        );
         
         if (!professional) {
           throw new Error('Professional not found');
@@ -589,33 +462,38 @@ const professionalResolvers = {
     },
 
     /**
+     * Mark profile as completed
+     * @param {Object} parent - Parent resolver
+     * @param {Object} args - Mutation arguments with ID
+     * @returns {Promise<Object>} Updated professional document
+     */
+    completeProfile: async (parent, { id }) => {
+      try {
+        const professional = await Professional.findById(id);
+        if (!professional) {
+          throw new Error('Professional not found');
+        }
+        
+        return await professional.completeProfile();
+      } catch (error) {
+        throw new Error(`Error completing profile: ${error.message}`);
+      }
+    },
+
+    /**
      * Validate professional monthly application limit
      * @param {Object} parent - Parent resolver
      * @param {Object} args - Mutation arguments with professional ID
-     * @returns {Promise<Boolean>} Whether professional can apply (under limit)
+     * @returns {Promise<Object>} Application limit status
      */
     validateMonthlyApplicationLimit: async (parent, { professionalId }) => {
       try {
-        // This would be implemented when JobApplication model is ready
-        // For now, return true as placeholder
         const professional = await Professional.findById(professionalId);
         if (!professional) {
           throw new Error('Professional not found');
         }
         
-        // TODO: Implement actual monthly application count logic
-        // const currentMonth = new Date().getMonth();
-        // const currentYear = new Date().getFullYear();
-        // const applicationCount = await JobApplication.countDocuments({
-        //   professionalId,
-        //   createdAt: {
-        //     $gte: new Date(currentYear, currentMonth, 1),
-        //     $lt: new Date(currentYear, currentMonth + 1, 1)
-        //   }
-        // });
-        // return applicationCount < 3;
-        
-        return true;
+        return await professional.canApplyToMoreJobs();
       } catch (error) {
         throw new Error(`Error validating monthly application limit: ${error.message}`);
       }
@@ -625,16 +503,58 @@ const professionalResolvers = {
   // Field resolvers
   Professional: {
     /**
-     * Get active professions with populated data
+     * Get curriculum for the professional
      * @param {Object} parent - Professional document
-     * @returns {Promise<Array>} Array of populated professions
+     * @returns {Promise<Object>} Professional's curriculum
      */
-    activeProfessions: async (parent) => {
+    curriculum: async (parent) => {
       try {
-        return await parent.getActiveProfessions();
+        return await parent.getCurriculum();
       } catch (error) {
-        console.error('Error fetching active professions:', error);
+        console.error('Error fetching curriculum:', error);
+        return null;
+      }
+    },
+
+    /**
+     * Get professions through curriculum
+     * @param {Object} parent - Professional document
+     * @returns {Promise<Array>} Array of professions from curriculum
+     */
+    professions: async (parent) => {
+      try {
+        return await parent.getProfessions();
+      } catch (error) {
+        console.error('Error fetching professions:', error);
         return [];
+      }
+    },
+
+    /**
+     * Check if professional has curriculum
+     * @param {Object} parent - Professional document
+     * @returns {Promise<Boolean>} Whether curriculum exists
+     */
+    hasCurriculum: async (parent) => {
+      try {
+        return await parent.hasCurriculum();
+      } catch (error) {
+        console.error('Error checking curriculum:', error);
+        return false;
+      }
+    },
+
+    /**
+     * Get monthly applications count
+     * @param {Object} parent - Professional document
+     * @returns {Promise<Number>} Count of applications this month
+     */
+    monthlyApplicationsCount: async (parent) => {
+      try {
+        return await parent.getMonthlyApplicationCount();
+      } catch (error) {
+        console.error('Error fetching monthly applications count:', error);
+        return 0;
       }
     },
 
@@ -654,31 +574,6 @@ const professionalResolvers = {
       } catch (error) {
         console.error('Error fetching applications:', error);
         return [];
-      }
-    },
-
-    /**
-     * Get monthly applications count
-     * @param {Object} parent - Professional document
-     * @returns {Promise<Number>} Count of applications this month
-     */
-    monthlyApplicationsCount: async (parent) => {
-      try {
-        // TODO: Implement when JobApplication model is ready
-        // const JobApplication = require('../models/JobApplication');
-        // const currentMonth = new Date().getMonth();
-        // const currentYear = new Date().getFullYear();
-        // return await JobApplication.countDocuments({
-        //   professionalId: parent._id,
-        //   createdAt: {
-        //     $gte: new Date(currentYear, currentMonth, 1),
-        //     $lt: new Date(currentYear, currentMonth + 1, 1)
-        //   }
-        // });
-        return 0;
-      } catch (error) {
-        console.error('Error fetching monthly applications count:', error);
-        return 0;
       }
     }
   }
