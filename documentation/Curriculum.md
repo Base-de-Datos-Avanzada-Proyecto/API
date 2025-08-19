@@ -388,7 +388,6 @@ query SearchCurricula {
 }
 ```
 
-
 ### 10. curriculaEducationStats
 
 Obtiene estadísticas por nivel educativo.

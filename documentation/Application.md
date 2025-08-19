@@ -138,8 +138,8 @@ query GetFilteredApplications {
     filters: {
       status: Pending
       priority: High
-      startDate: "2024-01-01"
-      endDate: "2024-12-31"
+      startDate: "2025-08-01"
+      endDate: "2025-12-31"
     }
     limit: 20
     offset: 0
@@ -202,7 +202,6 @@ query GetProfessionalApplications {
       jobOffer {
         id
         title
-        company
         applicationDeadline
         status
       }
@@ -237,7 +236,7 @@ query GetJobOfferApplications {
       notes
 
       professional {
-        name
+        firstName
         lastName
         email
         phone
@@ -344,12 +343,12 @@ mutation CreateApplication {
         isNegotiable
       }
       professional {
-        name
+        firstName
         lastName
       }
       jobOffer {
         title
-        company
+        description
       }
     }
     errors
@@ -444,7 +443,7 @@ mutation AcceptApplication {
       reviewedAt
       notes
       professional {
-        name
+        firstName
         lastName
         email
       }
@@ -495,7 +494,7 @@ mutation SetPriority {
       id
       priority
       professional {
-        name
+        firstName
         lastName
       }
     }
