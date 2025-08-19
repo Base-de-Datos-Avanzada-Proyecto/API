@@ -88,14 +88,17 @@ query GetApplication {
       daysSinceApplication
 
       professional {
-        name
+        firstName
         lastName
         email
       }
 
       jobOffer {
         title
-        company
+        employer {
+          name
+          displayName
+        }
         location {
           canton
         }
@@ -154,13 +157,13 @@ query GetFilteredApplications {
       daysSinceApplication
 
       professional {
-        name
+        firstName
         lastName
       }
 
       jobOffer {
         title
-        company
+        description
       }
 
       expectedSalary {

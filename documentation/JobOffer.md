@@ -190,7 +190,7 @@ Obtiene una oferta de trabajo específica por ID.
 
 ```graphql
 query GetJobOfferDetails {
-  jobOffer(id: "64a7b8c9d0e1f2345678901a") {
+  jobOffer(id: "68a3bee57357a7e08d784879") {
     id
     title
     description
@@ -239,11 +239,8 @@ query GetJobOfferDetails {
     applications {
       id
       status
-      appliedAt
-      professional {
-        name
-        lastName
-      }
+      jobOfferId
+      professionalId
     }
 
     # Campos virtuales
@@ -446,7 +443,7 @@ Busca ofertas por texto en múltiples campos.
 
 ```graphql
 query SearchJobs {
-  searchJobOffers(searchText: "desarrollador software") {
+  searchJobOffers(searchText: "Developer") {
     id
     title
     description
@@ -524,10 +521,10 @@ mutation CreateJobOffer {
     input: {
       title: "Desarrollador Full-Stack Senior"
       description: "Buscamos un desarrollador experimentado para liderar proyectos de desarrollo web usando tecnologías modernas como React, Node.js y MongoDB."
-      employerId: "64a7b8c9d0e1f2345678901b"
+      employerId: "68a3bee57357a7e08d78481f"
       requiredProfessions: [
-        "64a7b8c9d0e1f2345678901c"
-        "64a7b8c9d0e1f2345678901d"
+        "68a3bee57357a7e08d78480a"
+        "68a3bee57357a7e08d784809"
       ]
       workType: Full_time
       workModality: Hybrid
@@ -551,10 +548,10 @@ mutation CreateJobOffer {
       ]
       experienceRequired: 5
       educationLevel: Bachelor
-      applicationDeadline: "2024-03-15T23:59:59Z"
+      applicationDeadline: "2026-03-15T23:59:59Z"
       maxApplications: 50
       contactEmail: "rrhh@empresa.com"
-      contactPhone: "25551234"
+      contactPhone: "2555-1234"
       isFeatured: false
     }
   ) {
@@ -581,7 +578,7 @@ Actualiza una oferta de trabajo existente.
 ```graphql
 mutation UpdateJobOffer {
   updateJobOffer(
-    id: "64a7b8c9d0e1f2345678901a"
+    id: "68a3c7b4634f914bb0a4a6f5"
     input: {
       title: "Desarrollador Full-Stack Senior (Actualizado)"
       description: "Descripción actualizada con nuevos requerimientos..."
@@ -822,305 +819,6 @@ mutation UpdateRequirements {
     requirements
     preferredSkills
     lastUpdated
-  }
-}
-```
-
-### 13. cloneJobOffer
-
-Clona una oferta de trabajo existente.
-
-**Ejemplo de uso:**
-
-```graphql
-mutation CloneJobOffer {
-  cloneJobOffer(
-    id: "64a7b8c9d0e1f2345678901a"
-    title: "Desarrollador Full-Stack Senior - Copia para nuevo proyecto"
-  ) {
-    id
-    title
-    status
-    createdAt
-    employer {
-      displayName
-    }
-  }
-}
-```
-
----
-
-## Casos de Uso Comunes
-
-### 1. Creación completa de oferta de trabajo
-
-```graphql
-mutation CreateCompleteJobOffer {
-  createJobOffer(
-    input: {
-      title: "Ingeniero de Software Senior"
-      description: "Únete a nuestro equipo como Ingeniero de Software Senior. Trabajarás en el desarrollo de aplicaciones web de alta escala, liderando proyectos técnicos y mentoreando desarrolladores junior."
-      employerId: "64a7b8c9d0e1f2345678901b"
-      requiredProfessions: [
-        "64a7b8c9d0e1f2345678901c" # Ingeniería en Sistemas
-        "64a7b8c9d0e1f2345678901d" # Ingeniería en Software
-      ]
-      workType: Full_time
-      workModality: Hybrid
-      location: {
-        canton: Puntarenas
-        specificLocation: "Edificio corporativo, zona centro"
-      }
-      salary: { min: 1000000, max: 1500000, currency: CRC, isNegotiable: true }
-      requirements: [
-        "Licenciatura en Ingeniería en Sistemas, Software o afines"
-        "Mínimo 5 años de experiencia en desarrollo de software"
-        "Experiencia sólida con JavaScript, TypeScript, React y Node.js"
-        "Conocimientos de bases de datos relacionales y NoSQL"
-        "Experiencia con metodologías ágiles (Scrum, Kanban)"
-        "Inglés conversacional"
-      ]
-      preferredSkills: [
-        "Experiencia con cloud computing (AWS, Azure, GCP)"
-        "Conocimientos de DevOps y CI/CD"
-        "Experiencia con contenedores (Docker, Kubernetes)"
-        "Arquitectura de microservicios"
-        "Liderazgo técnico y mentoría"
-        "Certificaciones técnicas relevantes"
-      ]
-      experienceRequired: 5
-      educationLevel: Bachelor
-      applicationDeadline: "2024-05-01T23:59:59Z"
-      maxApplications: 100
-      contactEmail: "careers@techcompany.com"
-      contactPhone: "25551234"
-      isFeatured: true
-    }
-  ) {
-    id
-    title
-    status
-    salaryRange
-    daysUntilDeadline
-    employer {
-      displayName
-      businessSector
-    }
-  }
-}
-```
-
-### 2. Dashboard de empleador para gestionar ofertas
-
-```graphql
-query EmployerJobOffersDashboard($employerId: ID!) {
-  jobOffersByEmployer(employerId: $employerId) {
-    id
-    title
-    status
-    workType
-    applicationDeadline
-    isExpired
-    daysUntilDeadline
-    applicationCount
-    viewCount
-    isFeatured
-
-    location {
-      canton
-      specificLocation
-    }
-
-    requiredProfessions {
-      name
-    }
-
-    applications {
-      id
-      status
-      appliedAt
-      professional {
-        name
-        lastName
-      }
-    }
-  }
-
-  jobOfferStats {
-    total
-    active
-    published
-    expired
-  }
-}
-```
-
-### 3. Portal de búsqueda de empleos para profesionales
-
-```graphql
-query JobSearchPortal(
-  $canton: Canton
-  $workType: WorkType
-  $professionId: ID
-  $salaryMin: Float
-  $searchText: String
-) {
-  activeJobOffers: jobOffers(
-    filter: {
-      isActive: true
-      status: Published
-      isExpired: false
-      canton: $canton
-      workType: $workType
-      requiredProfessions: [$professionId]
-      salaryMin: $salaryMin
-      searchText: $searchText
-    }
-    sort: { field: publishedAt, order: DESC }
-    limit: 20
-  ) {
-    id
-    title
-    description
-    salaryRange
-    workType
-    workModality
-    applicationDeadline
-    daysUntilDeadline
-    viewCount
-
-    employer {
-      displayName
-      businessSector
-    }
-
-    location {
-      canton
-      specificLocation
-    }
-
-    requiredProfessions {
-      name
-    }
-
-    requirements
-    preferredSkills
-    experienceRequired
-    educationLevel
-  }
-
-  featuredJobOffers(limit: 5) {
-    id
-    title
-    employer {
-      displayName
-    }
-    salaryRange
-    workType
-  }
-
-  jobOfferStats {
-    total
-    active
-    published
-  }
-}
-```
-
-### 4. Proceso de gestión del ciclo de vida de ofertas
-
-```graphql
-# Crear oferta en borrador
-mutation CreateDraftOffer {
-  createJobOffer(input: $jobOfferInput) {
-    id
-    title
-    status # Draft
-  }
-}
-
-# Publicar oferta
-mutation PublishOffer {
-  publishJobOffer(id: "64a7b8c9d0e1f2345678901a") {
-    id
-    status # Published
-    publishedAt
-  }
-}
-
-# Pausar temporalmente
-mutation PauseOffer {
-  pauseJobOffer(id: "64a7b8c9d0e1f2345678901a") {
-    id
-    status # Paused
-  }
-}
-
-# Reabrir oferta
-mutation ReopenOffer {
-  reopenJobOffer(id: "64a7b8c9d0e1f2345678901a") {
-    id
-    status # Published
-    isActive
-  }
-}
-
-# Cerrar oferta (posición llenada)
-mutation CloseFilledPosition {
-  closeJobOffer(id: "64a7b8c9d0e1f2345678901a", filled: true) {
-    id
-    status # Filled
-    applicationCount
-  }
-}
-```
-
-### 5. Sistema de monitoreo y alertas
-
-```graphql
-query MonitoringDashboard {
-  # Ofertas que expiran pronto
-  expiringJobs: expiringJobOffers(days: 7) {
-    id
-    title
-    employer {
-      displayName
-      email
-    }
-    applicationDeadline
-    daysUntilDeadline
-    applicationCount
-  }
-
-  # Ofertas más populares
-  popularJobs: mostViewedJobOffers(limit: 10) {
-    id
-    title
-    employer {
-      displayName
-    }
-    viewCount
-    applicationCount
-  }
-
-  # Estadísticas generales
-  stats: jobOfferStats {
-    total
-    active
-    published
-    expired
-  }
-
-  # Inventario de posiciones vacantes
-  vacantPositions {
-    id
-    title
-    employer
-    canton
-    workType
-    applicationDeadline
-    status
   }
 }
 ```

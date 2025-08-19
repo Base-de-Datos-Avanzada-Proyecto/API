@@ -91,7 +91,7 @@ query GetPublicCurricula {
     totalWorkExperience
     highestEducation
     professional {
-      name
+      firstName
       lastName
       email
     }
@@ -126,7 +126,7 @@ query GetCurriculum {
     isPublic
 
     professional {
-      name
+      firstName
       lastName
       email
       phone
@@ -250,7 +250,7 @@ query GetCurriculaByProfession {
     summary
     totalWorkExperience
     professional {
-      name
+      firstName
       lastName
     }
     professions {
@@ -272,7 +272,7 @@ query GetMastersDegreeHolders {
   curriculaByEducationLevel(educationLevel: Master) {
     id
     professional {
-      name
+      firstName
       lastName
       email
     }
@@ -297,7 +297,7 @@ query GetTechnicalProfessionals {
   curriculaBySkillCategory(category: Technical) {
     id
     professional {
-      name
+      firstName
       lastName
     }
     skills(category: Technical) {
@@ -320,7 +320,7 @@ query GetCompletedCurricula {
   completedCurricula {
     id
     professional {
-      name
+      firstName
       lastName
     }
     summary
@@ -342,7 +342,7 @@ query GetPublicCurricula {
     id
     summary
     professional {
-      name
+      firstName
       lastName
     }
     professions {
@@ -373,7 +373,7 @@ query SearchCurricula {
     summary
     objectives
     professional {
-      name
+      firstName
       lastName
     }
     skills {
@@ -388,26 +388,8 @@ query SearchCurricula {
 }
 ```
 
-### 10. curriculaProfessionStats
 
-Obtiene estadísticas de currículums por profesión.
-
-**Ejemplo de uso:**
-
-```graphql
-query GetProfessionStats {
-  curriculaProfessionStats {
-    profession {
-      name
-    }
-    count
-    avgExperience
-    proficiencyLevels
-  }
-}
-```
-
-### 11. curriculaEducationStats
+### 10. curriculaEducationStats
 
 Obtiene estadísticas por nivel educativo.
 
@@ -423,7 +405,7 @@ query GetEducationStats {
 }
 ```
 
-### 12. curriculaSkillStats
+### 11. curriculaSkillStats
 
 Obtiene estadísticas por categorías de habilidades.
 
@@ -439,7 +421,7 @@ query GetSkillStats {
 }
 ```
 
-### 13. curriculaCount
+### 12. curriculaCount
 
 Cuenta currículums con filtros opcionales.
 
@@ -451,7 +433,7 @@ query CountPublicCurricula {
 }
 ```
 
-### 14. curriculaByExperienceRange
+### 13. curriculaByExperienceRange
 
 Obtiene currículums por rango de experiencia.
 
@@ -462,7 +444,7 @@ query GetMidLevelProfessionals {
   curriculaByExperienceRange(minYears: 3, maxYears: 7) {
     id
     professional {
-      name
+      firstName
       lastName
     }
     totalWorkExperience
@@ -473,7 +455,7 @@ query GetMidLevelProfessionals {
 }
 ```
 
-### 15. recentlyUpdatedCurricula
+### 14. recentlyUpdatedCurricula
 
 Obtiene currículums actualizados recientemente.
 
@@ -484,7 +466,7 @@ query GetRecentlyUpdated {
   recentlyUpdatedCurricula(limit: 10) {
     id
     professional {
-      name
+      firstName
       lastName
     }
     updatedAt
@@ -493,7 +475,7 @@ query GetRecentlyUpdated {
 }
 ```
 
-### 16. curriculaRequiringReview
+### 15. curriculaRequiringReview
 
 Obtiene currículums que requieren revisión.
 
@@ -504,7 +486,7 @@ query GetCurriculaNeedingReview {
   curriculaRequiringReview {
     id
     professional {
-      name
+      firstName
       lastName
     }
     lastReviewed
@@ -527,10 +509,10 @@ Crea un nuevo currículum.
 mutation CreateCurriculum {
   createCurriculum(
     input: {
-      professionalId: "64a7b8c9d0e1f2345678901b"
+      professionalId: "68a3d0b72582a71f10fc4ba8"
       professions: [
         {
-          professionId: "64a7b8c9d0e1f2345678901c"
+          professionId: "68a3bee57357a7e08d784809"
           experienceYears: 5
           proficiencyLevel: Advanced
         }
@@ -573,7 +555,7 @@ mutation CreateCurriculum {
     id
     isComplete
     professional {
-      name
+      firstName
       lastName
     }
   }
@@ -1105,7 +1087,7 @@ Remueve un idioma.
 
 ```graphql
 mutation RemoveLanguage {
-  removeLanguage(id: "64a1b2c3d4e5f6789012345", languageName: "German") {
+  removeLanguage(id: "64a1b2c3d4e5f6789012345", languageName: "Francés") {
     id
     languages {
       language
@@ -1169,7 +1151,7 @@ mutation AddReference {
       position: "Director de Tecnología"
       company: "TechCorp S.A."
       email: "carlos.mendoza@techcorp.com"
-      phone: "87654321"
+      phone: "8765-4321"
       relationship: Supervisor
     }
   ) {
@@ -1200,7 +1182,7 @@ mutation UpdateReference {
       position: "Senior Software Engineering Manager"
       company: "TechCorp Solutions"
       email: "maria.gonzalez@techcorp.com"
-      phone: "+506 8888-9999"
+      phone: "8888-9999"
       relationship: Supervisor
     }
   ) {
@@ -1308,224 +1290,5 @@ mutation ReviewCurriculum {
     lastReviewed
     updatedAt
   }
-}
-```
-
----
-
-## Casos de Uso Comunes
-
-### 1. Creación completa de currículum
-
-```graphql
-mutation CreateCompleteCurriculum {
-  createCurriculum(
-    input: {
-      professionalId: "64a7b8c9d0e1f2345678901b"
-      professions: [
-        {
-          professionId: "64a7b8c9d0e1f2345678901c"
-          experienceYears: 5
-          proficiencyLevel: Advanced
-        }
-      ]
-      summary: "Desarrollador Full-Stack especializado en tecnologías web modernas"
-      objectives: "Liderar proyectos de desarrollo de software innovadores"
-      education: [
-        {
-          institution: "Universidad de Costa Rica"
-          degree: "Ingeniería en Computación"
-          fieldOfStudy: "Ciencias de la Computación"
-          educationLevel: Bachelor
-          startDate: "2015-01-01"
-          endDate: "2019-12-31"
-          isCompleted: true
-          gpa: 3.8
-        }
-      ]
-      workExperience: [
-        {
-          company: "TechCorp S.A."
-          position: "Desarrollador Senior"
-          startDate: "2020-01-01"
-          isCurrentJob: true
-          description: "Desarrollo de aplicaciones web enterprise"
-          achievements: [
-            "Lideró equipo de 5 desarrolladores"
-            "Implementó arquitectura de microservicios"
-          ]
-          skills: ["React", "Node.js", "MongoDB"]
-        }
-      ]
-      skills: [
-        {
-          name: "JavaScript"
-          category: Technical
-          proficiencyLevel: Expert
-          yearsOfExperience: 6
-        }
-        {
-          name: "Liderazgo"
-          category: Soft
-          proficiencyLevel: Advanced
-          yearsOfExperience: 3
-        }
-      ]
-      languages: [
-        { language: "Español", proficiency: Native, certified: false }
-        { language: "Inglés", proficiency: Fluent, certified: true }
-      ]
-      portfolio: {
-        website: "https://miportafolio.com"
-        linkedin: "https://linkedin.com/in/miperfil"
-        github: "https://github.com/miusuario"
-      }
-      references: [
-        {
-          name: "María González"
-          position: "Gerente de Desarrollo"
-          company: "TechCorp S.A."
-          email: "maria.gonzalez@techcorp.com"
-          relationship: Supervisor
-        }
-      ]
-      isPublic: true
-    }
-  ) {
-    id
-    isComplete
-    professional {
-      name
-      lastName
-    }
-  }
-}
-```
-
-### 2. Búsqueda avanzada de talento
-
-```graphql
-query FindTalent {
-  curricula(
-    filter: {
-      isPublic: true
-      isComplete: true
-      skillCategory: Technical
-      minExperienceYears: 3
-      maxExperienceYears: 8
-      educationLevel: Bachelor
-    }
-    sort: { field: updatedAt, order: DESC }
-    limit: 20
-  ) {
-    id
-    summary
-    totalWorkExperience
-    highestEducation
-
-    professional {
-      name
-      lastName
-      email
-    }
-
-    skills(category: Technical) {
-      name
-      proficiencyLevel
-      yearsOfExperience
-    }
-
-    workExperience {
-      position
-      company
-      isCurrentJob
-    }
-
-    education {
-      degree
-      institution
-      educationLevel
-    }
-  }
-}
-```
-
-### 3. Dashboard de currículum personal
-
-```graphql
-query CurriculumDashboard($professionalId: ID!) {
-  curriculumByProfessional(professionalId: $professionalId) {
-    id
-    summary
-    objectives
-    isComplete
-    isPublic
-    version
-    lastReviewed
-    totalWorkExperience
-    highestEducation
-
-    professions {
-      professionId {
-        name
-      }
-      experienceYears
-      proficiencyLevel
-    }
-
-    skills {
-      category
-      name
-      proficiencyLevel
-    }
-
-    education {
-      educationLevel
-      degree
-      institution
-    }
-
-    workExperience {
-      position
-      company
-      isCurrentJob
-    }
-  }
-
-  curriculaSkillStats {
-    category
-    count
-    avgYears
-  }
-}
-```
-
-### 4. Análisis de mercado laboral
-
-```graphql
-query MarketAnalysis {
-  curriculaProfessionStats {
-    profession {
-      name
-    }
-    count
-    avgExperience
-    proficiencyLevels
-  }
-
-  curriculaEducationStats {
-    educationLevel
-    count
-    percentage
-  }
-
-  curriculaSkillStats {
-    category
-    count
-    avgYears
-  }
-
-  curriculaCount(filter: { isComplete: true })
-  curriculaCount(filter: { isPublic: true })
 }
 ```

@@ -716,44 +716,7 @@ const jobOfferResolvers = {
       }
     },
 
-    /**
-     * Clone job offer
-     * @param {Object} parent - Parent resolver
-     * @param {Object} args - Mutation arguments with ID and new title
-     * @returns {Promise<Object>} Cloned job offer document
-     */
-    cloneJobOffer: async (parent, { id, title }) => {
-      try {
-        const originalJobOffer = await JobOffer.findById(id);
-        if (!originalJobOffer) {
-          throw new Error('Job offer not found');
-        }
-
-        // Create clone with new title and reset specific fields
-        const cloneData = {
-          ...originalJobOffer.toObject(),
-          _id: undefined,
-          title,
-          status: 'Draft',
-          isActive: true,
-          publishedAt: undefined,
-          viewCount: 0,
-          applicationCount: 0,
-          createdAt: undefined,
-          updatedAt: undefined,
-          lastUpdated: new Date()
-        };
-
-        const clonedJobOffer = new JobOffer(cloneData);
-        const savedClone = await clonedJobOffer.save();
-        
-        return await JobOffer.findById(savedClone._id)
-          .populate('employerId')
-          .populate('requiredProfessions');
-      } catch (error) {
-        throw new Error(`Error cloning job offer: ${error.message}`);
-      }
-    }
+    
   },
 
   // Field resolvers
@@ -774,11 +737,10 @@ const jobOfferResolvers = {
      */
     applications: async (parent) => {
       try {
-        // TODO: Implement when JobApplication model is ready
-        // const JobApplication = require('../models/JobApplication');
-        // return await JobApplication.find({ jobOfferId: parent._id })
-        //   .populate('professionalId')
-        //   .sort({ applicationDate: -1 });
+        const JobApplication = require('../models/JobApplication');
+        return await JobApplication.find({ jobOfferId: parent._id })
+          .populate('professionalId')
+          .sort({ applicationDate: -1 });
         return [];
       } catch (error) {
         console.error('Error fetching job applications:', error);

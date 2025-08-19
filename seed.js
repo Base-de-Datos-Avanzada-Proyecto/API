@@ -725,7 +725,7 @@ const seedJobOffers = async () => {
         requiredProfessions: [
           seededData.professions.get('SOFTDEV')
         ],
-        workType: 'Full-time',
+        workType: 'Full_time',
         workModality: 'Hybrid',
         location: {
           canton: 'Puntarenas',
@@ -761,8 +761,8 @@ const seedJobOffers = async () => {
         requiredProfessions: [
           seededData.professions.get('DBA')
         ],
-        workType: 'Full-time',
-        workModality: 'On-site',
+        workType: 'Full_time',
+        workModality: 'On_site',
         location: {
           canton: 'Puntarenas',
           specificLocation: 'Edificio Plaza del Pacífico'
@@ -796,8 +796,8 @@ const seedJobOffers = async () => {
         requiredProfessions: [
           seededData.professions.get('CIVENG')
         ],
-        workType: 'Full-time',
-        workModality: 'On-site',
+        workType: 'Full_time',
+        workModality: 'On_site',
         location: {
           canton: 'Esparza',
           specificLocation: 'Zona Industrial de Esparza'
@@ -832,8 +832,8 @@ const seedJobOffers = async () => {
         requiredProfessions: [
           seededData.professions.get('RN')
         ],
-        workType: 'Full-time',
-        workModality: 'On-site',
+        workType: 'Full_time',
+        workModality: 'On_site',
         location: {
           canton: 'Puntarenas',
           specificLocation: 'Centro Médico del Pacífico'
@@ -868,8 +868,8 @@ const seedJobOffers = async () => {
         requiredProfessions: [
           seededData.professions.get('ELECT')
         ],
-        workType: 'Full-time',
-        workModality: 'On-site',
+        workType: 'Full_time',
+        workModality: 'On_site',
         location: {
           canton: 'MonteDeOro',
           specificLocation: 'Various client locations'
@@ -904,7 +904,7 @@ const seedJobOffers = async () => {
         requiredProfessions: [
           seededData.professions.get('SOFTDEV')
         ],
-        workType: 'Part-time',
+        workType: 'Part_time',
         workModality: 'Remote',
         location: {
           canton: 'MonteDeOro',
@@ -940,8 +940,8 @@ const seedJobOffers = async () => {
         requiredProfessions: [
           seededData.professions.get('ACCT')
         ],
-        workType: 'Part-time',
-        workModality: 'On-site',
+        workType: 'Part_time',
+        workModality: 'On_site',
         location: {
           canton: 'Esparza',
           specificLocation: 'Home office in Esparza'
@@ -977,7 +977,7 @@ const seedJobOffers = async () => {
           seededData.professions.get('ELECT')
         ],
         workType: 'Contract',
-        workModality: 'On-site',
+        workModality: 'On_site',
         location: {
           canton: 'Puntarenas',
           specificLocation: 'Various residential locations'

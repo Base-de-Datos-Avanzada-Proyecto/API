@@ -49,8 +49,8 @@ const jobOfferSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Work type is required'],
     enum: {
-      values: ['Full-time', 'Part-time', 'Contract', 'Temporary', 'Internship'],
-      message: 'Work type must be one of: Full-time, Part-time, Contract, Temporary, Internship'
+      values: ['Full_time', 'Part_time', 'Contract', 'Temporary', 'Internship'],
+      message: 'Work type must be one of: Full_time, Part_time, Contract, Temporary, Internship'
     }
   },
   
@@ -58,8 +58,8 @@ const jobOfferSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Work modality is required'],
     enum: {
-      values: ['On-site', 'Remote', 'Hybrid'],
-      message: 'Work modality must be: On-site, Remote, or Hybrid'
+      values: ['On_site', 'Remote', 'Hybrid'],
+      message: 'Work modality must be: On_site, Remote, or Hybrid'
     }
   },
   
@@ -90,7 +90,11 @@ const jobOfferSchema = new mongoose.Schema({
       min: [0, 'Maximum salary cannot be negative'],
       validate: {
         validator: function(value) {
-          return !this.salary.min || value >= this.salary.min;
+          // Verificar si averageSalaryRange existe y tiene min antes de comparar
+          if (!this.averageSalaryRange || this.averageSalaryRange.min === null || this.averageSalaryRange.min === undefined) {
+            return true; // Si no hay min definido, no validar la comparación
+          }
+          return value >= this.averageSalaryRange.min;
         },
         message: 'Maximum salary must be greater than or equal to minimum salary'
       }
