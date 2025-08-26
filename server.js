@@ -12,6 +12,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const morgan = require('morgan');
 require('dotenv').config();
+require('./gridfs/bucket'); // warms up the bucket on "open"
+
 
 // Import GraphQL schemas and resolvers
 const { typeDefs, resolvers } = require('./graphql');
@@ -20,9 +22,13 @@ const { typeDefs, resolvers } = require('./graphql');
 const professionalsRoutes = require('./routes/professionals');
 const employersRoutes = require('./routes/employers');
 const applicationsRoutes = require('./routes/applications');
+const curriculumPhotosRouter = require('./routes/curriculum.photos'); // Import Curriculum photos routes
 
 // Import database configuration
 const { connectDB } = require('./config/database');
+
+
+
 
 /**
  * Initialize Express application
@@ -45,6 +51,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/professionals', professionalsRoutes);
 app.use('/api/employers', employersRoutes);
 app.use('/api/applications', applicationsRoutes);
+app.use('/api/curricula', curriculumPhotosRouter); 
 
 /**
  * Health check endpoint

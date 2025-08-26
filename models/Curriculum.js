@@ -8,6 +8,25 @@
 
 const mongoose = require('mongoose');
 
+
+/**
+ * Photos Schema Definition
+ * Represents the schema for photos in the curriculum
+ */
+const PhotoSchema = new mongoose.Schema(
+  {
+    fileId: { type: mongoose.Types.ObjectId, required: true }, // _id file in GridFS
+    filename: String,
+    contentType: String,
+    length: Number,
+    uploadDate: Date,
+    caption: String,
+    isMain: { type: Boolean, default: false }, // portada opcional xd
+  },
+  { _id: false }
+);
+
+
 /**
  * Curriculum Schema Definition
  * Stores comprehensive professional information and experience
@@ -20,6 +39,7 @@ const curriculumSchema = new mongoose.Schema({
     required: [true, 'Professional ID is required'],
     unique: true
   },
+  
   
   // Professional areas (moved from Professional model)
   professions: [{
@@ -333,6 +353,12 @@ const curriculumSchema = new mongoose.Schema({
     }
   }],
   
+   // Photos (GridFS metadata)
+  photos: {
+    type: [PhotoSchema],
+    default: []
+  },
+
   // Curriculum status and metadata
   isComplete: {
     type: Boolean,
@@ -367,6 +393,7 @@ curriculumSchema.index({ isComplete: 1 });
 curriculumSchema.index({ isPublic: 1 });
 curriculumSchema.index({ 'education.educationLevel': 1 });
 curriculumSchema.index({ 'skills.category': 1 });
+curriculumSchema.index({ 'photos.fileId': 1 });
 
 /**
  * Virtual properties
