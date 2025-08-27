@@ -23,6 +23,8 @@ const professionalsRoutes = require('./routes/professionals');
 const employersRoutes = require('./routes/employers');
 const applicationsRoutes = require('./routes/applications');
 const curriculumPhotosRouter = require('./routes/curriculum.photos'); // Import Curriculum photos routes
+const { graphqlUploadExpress } = require('graphql-upload');
+
 
 // Import database configuration
 const { connectDB } = require('./config/database');
@@ -43,6 +45,7 @@ app.use(cors());
 app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+app.use(graphqlUploadExpress({ maxFileSize: 5 * 1024 * 1024, maxFiles: 1 })); // 5MB, 1 archivo
 
 /**
  * REST API Routes

@@ -62,6 +62,22 @@ const clearData = async () => {
   }
 };
 
+
+const clearCurriculumPhotos = async () => {
+  const db = mongoose.connection.db;
+
+  await Promise.all([
+    db.collection('curriculum_photos.files').deleteMany({}),
+    db.collection('curriculum_photos.chunks').deleteMany({}),
+  ]);
+  
+  await db.collection('curricula').updateMany({}, { $set: { photos: [] } });
+
+  console.log('🧹 GridFS curriculum_photos limpiado y referencias photos reseteadas');
+};
+
+
+
 /**
  * Seed Professions - Catalog of available professions
  */
