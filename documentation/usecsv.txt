@@ -1,0 +1,109 @@
+insertar datos en applications
+
+crear coleccion applications_tmp, importar csv
+
+db.applications_tmp.aggregate([
+  // Normalización mínima (trim)
+  {
+    $addFields: {
+      professionalCedula: { $trim: { input: "$professionalCedula" } },
+      jobOfferTitle:      { $trim: { input: "$jobOfferTitle" } }
+    }
+  },
+
+  // 1) Cedula -> professionalId
+  {
+    $lookup: {
+      from: "professionals",
+      localField: "professionalCedula",
+      foreignField: "cedula",
+      as: "p"
+    }
+  },
+  { $unwind: "$p" },
+
+  // 2) Título -> jobOfferId (lookup con pipeline y case-insensitive)
+  {
+    $lookup: {
+      from: "job_offers",
+      let: { t: { $toLower: "$jobOfferTitle" } },
+      pipeline: [
+        { $addFields: { _t: { $toLower: "$title" } } },
+        { $match: { $expr: { $eq: ["$_t", "$$t"] } } }
+      ],
+      as: "j"
+    }
+  },
+  { $unwind: "$j" },
+
+  // 3) Tipado y mapeo a tu schema
+  {
+    $addFields: {
+      professionalId: "$p._id",
+      jobOfferId: "$j._id",
+
+      "expectedSalary.amount": { $toDouble: "$expectedSalary_amount" },
+      "expectedSalary.currency": "$expectedSalary_currency",
+      "expectedSalary.isNegotiable": {
+        $convert: { input: "$expectedSalary_isNegotiable", to: "bool", onError: false, onNull: false }
+      },
+
+      availabilityDate: {
+        $cond: [{ $ne: ["$availabilityDate", ""] }, { $toDate: "$availabilityDate" }, null]
+      },
+      appliedAt: {
+        $cond: [{ $ne: ["$appliedAt", ""] }, { $toDate: "$appliedAt" }, new Date()]
+      },
+      reviewedAt: {
+        $cond: [{ $ne: ["$reviewedAt", ""] }, { $toDate: "$reviewedAt" }, null]
+      },
+
+      additionalSkills: {
+        $cond: [
+          { $or: [ { $eq: ["$additionalSkills", null] }, { $eq: ["$additionalSkills", ""] } ] },
+          [],
+          { $split: [ "$additionalSkills", ";" ] }
+        ]
+      },
+
+      reviewedBy: {
+        $cond: [
+          { $in: [ "$status", ["Accepted", "Rejected"] ] },
+          "$j.employerId",
+          "$$REMOVE"
+        ]
+      },
+
+      isActive: true
+    }
+  },
+
+  // 4) Deja solo los campos del modelo Application
+  {
+    $project: {
+      professionalId: 1,
+      jobOfferId: 1,
+      status: 1,
+      coverLetter: 1,
+      motivation: 1,
+      expectedSalary: 1,
+      availabilityDate: 1,
+      additionalSkills: 1,
+      appliedAt: 1,
+      reviewedAt: 1,
+      reviewedBy: 1,
+      notes: 1,
+      priority: 1
+    }
+  },
+
+  // 5) Inserta/merge en destino respetando tu índice único
+  {
+    $merge: {
+      into: "applications",
+      on: ["professionalId", "jobOfferId"],
+      whenMatched: "fail",
+      whenNotMatched: "insert"
+    }
+  }
+]);

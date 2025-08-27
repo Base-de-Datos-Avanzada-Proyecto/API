@@ -1244,7 +1244,21 @@ const seedApplications = async (jobOffers) => {
       });
     }
     
-    const createdApplications = await Application.insertMany(applications);
+    // const createdApplications = await Application.insertMany(applications);
+
+    const createdApplications = await Application.insertMany(applications, {
+      ordered: false,        // no aborta todo el batch si una falla
+      rawResult: true        // devuelve writeErrors detallados
+    });
+
+    if (createdApplications.writeErrors?.length) {
+      console.error('❌ Algunas applications fallaron:', createdApplications.writeErrors.map(e => ({
+        index: e.index, code: e.code, errmsg: e.errmsg
+      })));
+    } else {
+      console.log(`✅ Created ${createdApplications.insertedCount} job applications`);
+    }
+
     console.log(`✅ Created ${createdApplications.length} job applications`);
     
     return createdApplications;
