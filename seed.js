@@ -1140,7 +1140,7 @@ const seedApplications = async (jobOffers) => {
           currency: 'CRC',
           isNegotiable: false
         },
-        availabilityDate: new Date('2025-08-25'),
+        availabilityDate: new Date('2025-09-25'),
         additionalSkills: ['ACLS Certified', 'Trauma Care', 'IV Therapy'],
         appliedAt: new Date('2025-08-05'),
         reviewedAt: new Date('2025-08-18'),
@@ -1185,7 +1185,7 @@ const seedApplications = async (jobOffers) => {
           currency: 'CRC',
           isNegotiable: true
         },
-        availabilityDate: new Date('2025-08-30'),
+        availabilityDate: new Date('2025-09-30'),
         additionalSkills: ['Customer Relations', 'Problem Solving', 'Quality Work'],
         appliedAt: new Date('2025-08-20'),
         priority: 'Medium'
@@ -1210,7 +1210,7 @@ const seedApplications = async (jobOffers) => {
           currency: 'CRC',
           isNegotiable: true
         },
-        availabilityDate: new Date('2025-08-28'),
+        availabilityDate: new Date('2025-09-28'),
         additionalSkills: ['Quick Learner', 'Team Player', 'Fresh Perspective'],
         appliedAt: new Date('2025-08-19'),
         reviewedAt: new Date('2025-08-21'),
@@ -1244,7 +1244,21 @@ const seedApplications = async (jobOffers) => {
       });
     }
     
-    const createdApplications = await Application.insertMany(applications);
+    // const createdApplications = await Application.insertMany(applications);
+
+    const createdApplications = await Application.insertMany(applications, {
+      ordered: false,        // no aborta todo el batch si una falla
+      rawResult: true        // devuelve writeErrors detallados
+    });
+
+    if (createdApplications.writeErrors?.length) {
+      console.error('❌ Algunas applications fallaron:', createdApplications.writeErrors.map(e => ({
+        index: e.index, code: e.code, errmsg: e.errmsg
+      })));
+    } else {
+      console.log(`✅ Created ${createdApplications.insertedCount} job applications`);
+    }
+
     console.log(`✅ Created ${createdApplications.length} job applications`);
     
     return createdApplications;
